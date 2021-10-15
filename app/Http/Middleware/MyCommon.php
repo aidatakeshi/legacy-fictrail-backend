@@ -14,7 +14,7 @@ class MyCommon{
          */
         $headers = [
             'Access-Control-Allow-Origin'      => env('ACCESS_CONTROL_ALLOW_ORIGIN'),
-            'Access-Control-Allow-Methods'     => 'POST, GET, OPTIONS, PUT, DELETE',
+            'Access-Control-Allow-Methods'     => 'POST, GET, OPTIONS, PUT, PATCH, DELETE',
             'Access-Control-Allow-Credentials' => 'true',
             'Access-Control-Max-Age'           => '86400',
             'Access-Control-Allow-Headers'     => 'Content-Type, Authorization, X-Requested-With',

@@ -21,20 +21,28 @@ class Prefecture extends Model{
 
     //Data validations
     public static $validations_update = [
-
+        'sort' => 'integer',
+        'other_info' => 'json',
     ];
     public static $validations_new = [
-
+        'sort' => 'integer',
+        'name_chi' => 'required',
+        'name_eng' => 'required',
+        'other_info' => 'json',
     ];
 
     //Filters
-    public static $filters = [
-
-    ];
+    public static function filters($param){
+        case 'area_id':
+        return ['query' => 'area_id = ?', 'params' => []];
+    }
     
     //Sortings
-    public static $sorting = [
-
+    public static $sort_default = 'sort';
+    public static $sortable = [
+        'area_id', 'sort',
+        'name_chi', 'name_chi_suffix', 'name_chi_short',
+        'name_eng', 'name_eng_suffix', 'name_eng_short'
     ];
 
     //Resource Relationships

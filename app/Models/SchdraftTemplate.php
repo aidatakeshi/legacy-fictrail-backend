@@ -36,14 +36,12 @@ class SchdraftTemplate extends Model{
     ];
 
     //Filters
-    public static $filters = [
-
-    ];
+    public static function filters($param){
+    }
     
     //Sortings
-    public static $sorting = [
-
-    ];
+    public static $sort_default = 'sort';
+    public static $sortable = [];
 
     //Resource Relationships
     public function group(){
