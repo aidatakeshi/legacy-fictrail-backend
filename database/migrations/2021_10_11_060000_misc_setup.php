@@ -33,7 +33,7 @@ class MiscSetup extends Migration
 
         Schema::create('files', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('uuid');
+            $table->string('uuid')->unique();
             $table->string('directory');
             $table->string('extension');
             $table->string('mimetype');

@@ -15,7 +15,7 @@ class ScheduleSetup extends Migration
 
         Schema::create('schdraft_categories', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             $table->bigInteger('sort')->default(0);
             //
             $table->text('title')->nullable();
@@ -30,7 +30,7 @@ class ScheduleSetup extends Migration
 
         Schema::create('schdraft_groups', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             $table->bigInteger('sort')->default(0);
             //
             $table->string('category_id')->nullable();
@@ -49,7 +49,7 @@ class ScheduleSetup extends Migration
 
         Schema::create('schdraft_templates', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             $table->bigInteger('sort')->default(0);
             //
             $table->string('group_id')->nullable();
@@ -87,7 +87,7 @@ class ScheduleSetup extends Migration
 
         Schema::create('schedule_trips', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             //
             $table->string('version_id')->nullable(); //For future use
             $table->string('schdraft_template_id')->nullable();
@@ -117,7 +117,7 @@ class ScheduleSetup extends Migration
 
         Schema::create('schedule_trip_stations', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             //
             $table->string('trip_id')->nullable();
             $table->string('line_id')->nullable();

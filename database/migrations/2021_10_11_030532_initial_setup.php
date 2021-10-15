@@ -18,7 +18,7 @@ class InitialSetup extends Migration
          */
         Schema::create('operator_types', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             $table->bigInteger('sort')->default(0);
             //
             $table->text('name_chi')->nullable();
@@ -33,7 +33,7 @@ class InitialSetup extends Migration
 
         Schema::create('operators', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             //
             $table->string('operator_type_id')->nullable();
             //
@@ -58,7 +58,7 @@ class InitialSetup extends Migration
          */
         Schema::create('prefecture_areas', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             $table->bigInteger('sort')->default(0);
             //
             $table->text('name_chi')->nullable();
@@ -73,7 +73,7 @@ class InitialSetup extends Migration
 
         Schema::create('prefectures', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             $table->bigInteger('sort')->default(0);
             //
             $table->string('area_id')->nullable();
@@ -97,7 +97,7 @@ class InitialSetup extends Migration
          */
         Schema::create('line_types', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             $table->bigInteger('sort')->default(0);
             //
             $table->text('name_chi')->nullable();
@@ -115,7 +115,7 @@ class InitialSetup extends Migration
 
         Schema::create('line_groups', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             //
             $table->text('name_chi')->nullable();
             $table->text('name_eng')->nullable();
@@ -130,7 +130,7 @@ class InitialSetup extends Migration
 
         Schema::create('lines', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             //
             $table->string('line_group_id')->nullable();
             $table->string('line_type_id')->nullable();
@@ -158,7 +158,7 @@ class InitialSetup extends Migration
 
         Schema::create('lines_stations', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             //
             $table->string('line_id')->nullable();
             $table->string('station_id')->nullable();
@@ -184,15 +184,15 @@ class InitialSetup extends Migration
 
         Schema::create('stations', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             //
             $table->string('operator_id')->nullable();
             $table->string('prefecture_id')->nullable();
             //
             $table->text('name_chi')->nullable();
             $table->text('name_eng')->nullable();
-            $table->integer('x')->nullable();
-            $table->integer('y')->nullable();
+            $table->float('x', 10, 3)->nullable();
+            $table->float('y', 10, 3)->nullable();
             $table->integer('height_m')->nullable();
             $table->json('tracks')->default('[]');
             //
@@ -214,7 +214,7 @@ class InitialSetup extends Migration
          */
         Schema::create('train_types', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             $table->bigInteger('sort')->default(0);
             //
             $table->string('operator_id')->nullable();
@@ -236,7 +236,7 @@ class InitialSetup extends Migration
 
         Schema::create('train_names', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             //
             $table->string('train_type_id')->nullable();
             $table->string('major_operator_id')->nullable();
@@ -259,7 +259,7 @@ class InitialSetup extends Migration
          */
         Schema::create('vehicle_performance_groups', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             $table->bigInteger('sort')->default(0);
             //
             $table->text('name_chi')->nullable();
@@ -274,7 +274,7 @@ class InitialSetup extends Migration
 
         Schema::create('vehicle_performance_items', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             $table->bigInteger('sort')->default(0);
             //
             $table->string('group_id')->nullable();
@@ -284,7 +284,7 @@ class InitialSetup extends Migration
             $table->text('remarks')->nullable();
             //
             $table->float('motor_ratio', 10, 5)->nullable();
-            $table->float('motor_rated_kW', 10, 5)->nullable();
+            $table->float('motor_rated_kw', 10, 5)->nullable();
             $table->float('motor_overclock_ratio', 10, 5)->nullable();
             $table->float('crush_capacity', 10, 5)->nullable();
             $table->float('empty_mass_avg_t', 10, 5)->nullable();
@@ -312,7 +312,8 @@ class InitialSetup extends Migration
          * Misc
          */
         Schema::create('map_editor_settings', function (Blueprint $table) {
-            $table->id('id');
+            $table->id('id_auto');
+            $table->string('id')->unique();
             //
             $table->boolean('lock_stations')->default(false);
             $table->boolean('hide_stations')->default(false);
@@ -327,7 +328,7 @@ class InitialSetup extends Migration
         });
         Schema::create('fares_hr', function (Blueprint $table) {
             $table->id('id_auto');
-            $table->string('id');
+            $table->string('id')->unique();
             //
             $table->string('version')->nullable();
             $table->text('remarks')->nullable();

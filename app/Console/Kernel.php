@@ -13,7 +13,12 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        \App\Console\Commands\ImportOldData_Operators::class,
+        \App\Console\Commands\ImportOldData_Prefectures::class,
+        \App\Console\Commands\ImportOldData_Lines::class,
+        \App\Console\Commands\ImportOldData_Stations::class,
+        \App\Console\Commands\ImportOldData_Trains::class,
+        \App\Console\Commands\ImportOldData_VehiclePerformances::class,
     ];
 
     /**
