@@ -21,17 +21,75 @@ class Station extends Model{
         'major', 'is_signal_only', 'is_abandoned',
         'remarks', 'other_info',
     ];
+    
+    //JSON fields
+    protected $casts = [
+        'tracks' => 'array',
+        'track_cross_points' => 'array',
+        'other_info' => 'object',
+    ];
 
     //Data validations
     public static $validations_update = [
-
+        'operator_id' => 'exists:operators,id',
+        'prefecture_id' => 'exists:prefectures,id',
+        'x' => 'numeric',
+        'y' => 'numeric',
+        'height_m' => 'integer',
+        'tracks' => 'json',
+        'track_cross_points' => 'json',
+        'major' => 'boolean',
+        'is_signal_only' => 'boolean',
+        'is_abandoned' => 'boolean',
+        'other_info' => 'json',
     ];
     public static $validations_new = [
-
+        'operator_id' => 'required|exists:operators,id',
+        'prefecture_id' => 'required|exists:prefectures,id',
+        'name_chi' => 'required',
+        'name_eng' => 'required',
+        'x' => 'numeric',
+        'y' => 'numeric',
+        'height_m' => 'integer',
+        'tracks' => 'json',
+        'track_cross_points' => 'json',
+        'major' => 'boolean',
+        'is_signal_only' => 'boolean',
+        'is_abandoned' => 'boolean',
+        'other_info' => 'json',
     ];
+
+    //Default Limit
+    public static $limit_default = 50;
 
     //Filters
     public static function filters($query, $param){
+        switch ($query){
+            case 'prefecture_id':
+            return ['query' => 'prefecture_id = ?', 'params' => [$param]];
+            case 'operator_id':
+            return ['query' => 'operator_id = ?', 'params' => [$param]];
+
+            case 'is_signal_only':
+            return ['query' => 'is_signal_only = TRUE', 'params' => []];
+            case 'not_signal_only':
+            return ['query' => 'is_signal_only = FALSE', 'params' => []];
+
+            case 'major':
+            return ['query' => 'major = TRUE', 'params' => []];
+            case 'minor':
+            return ['query' => 'major = FALSE', 'params' => []];
+
+            case 'is_abandoned':
+            return ['query' => 'is_abandoned = TRUE', 'params' => []];
+            case 'not_abandoned':
+            return ['query' => 'is_abandoned = FALSE', 'params' => []];
+
+            case 'name_chi':
+            return ['query' => 'LOWER(name_chi) LIKE LOWER(?)', 'params' => ["%$param%"]];
+            case 'name_eng':
+            return ['query' => 'LOWER(name_eng) LIKE LOWER(?)', 'params' => ["%$param%"]];
+        }
     }
     
     //Sortings
@@ -48,23 +106,22 @@ class Station extends Model{
 
     //Display data returned for GET
     public function displayData($request){
-        return [
-
-        ];
-    }
-
-    //Additional processing of data
-    public function whenGet($request){
-
-    }
-    public function whenSet($request){
-        
-    }
-    public function whenCreated($request){
-
-    }
-    public function whenRemoved($request){
-
+        $data = clone $this;
+        //"more" -> Get also operator & prefecture
+        if ($request->input('more')){
+            $data->operator = $this->operator;
+            $data->prefecture = $this->prefecture;
+        }
+        //"line" -> Get also lines
+        if ($request->input('line')){
+            $line_stations = Line_Station::where('station_id', $this->id)->where('isDeleted', false)->get();
+            $lines = [];
+            foreach ($line_stations as $i => $line_station){
+                array_push($lines, $line_station->line);
+            }
+            $data->lines = $lines;
+        }
+        return $data;
     }
 
     /**

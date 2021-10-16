@@ -42,7 +42,7 @@ class Operator extends Model{
     public static function filters($query, $param){
         switch ($query){
             case 'operator_type_id':
-            return ['query' => 'operator_type_id = ?', 'params' => []];
+            return ['query' => 'operator_type_id = ?', 'params' => [$param]];
             case 'name_chi':
             return ['query' => 'LOWER(name_chi) LIKE LOWER(?)', 'params' => ["%$param%"]];
             case 'name_eng':

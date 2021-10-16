@@ -62,6 +62,12 @@ class Line_Station extends Model{
 
     //Filters
     public static function filters($query, $param){
+        switch ($query){
+            case 'line_id':
+            return ['query' => 'line_id = ?', 'params' => [$param]];
+            case 'station_id':
+            return ['query' => 'station_id = ?', 'params' => [$param]];
+        }
     }
     
     //Sortings

@@ -37,6 +37,12 @@ class LineGroup extends Model{
 
     //Filters
     public static function filters($query, $param){
+        switch ($query){
+            case 'name_chi':
+            return ['query' => 'LOWER(name_chi) LIKE LOWER(?)', 'params' => ["%$param%"]];
+            case 'name_eng':
+            return ['query' => 'LOWER(name_eng) LIKE LOWER(?)', 'params' => ["%$param%"]];
+        }
     }
     
     //Sortings

@@ -61,11 +61,11 @@ class Line extends Model{
     public static function filters($query, $param){
         switch ($query){
             case 'line_group_id':
-            return ['query' => 'line_group_id = ?', 'params' => []];
+            return ['query' => 'line_group_id = ?', 'params' => [$param]];
             case 'line_type_id':
-            return ['query' => 'line_type_id = ?', 'params' => []];
+            return ['query' => 'line_type_id = ?', 'params' => [$param]];
             case 'operator_id':
-            return ['query' => 'operator_id = ?', 'params' => []];
+            return ['query' => 'operator_id = ?', 'params' => [$param]];
 
             case 'name_chi':
             return ['query' => 'LOWER(name_chi) LIKE LOWER(?)', 'params' => ["%$param%"]];
