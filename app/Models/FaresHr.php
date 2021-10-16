@@ -7,7 +7,7 @@ class FaresHr extends Model{
 
     protected $table = 'fares_hr';
     protected $primaryKey = 'id_auto';
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'id_auto', 'isDeleted'];
 
     //Fields Modifiable by PATCH / POST
     protected $fillable = [
@@ -23,7 +23,7 @@ class FaresHr extends Model{
     ];
 
     //Filters
-    public static function filters($param){
+    public static function filters($query, $param){
     }
     
     //Sortings
@@ -32,8 +32,8 @@ class FaresHr extends Model{
 
     //Resource Relationships
 
-    //Additional data returned for GET
-    public function getAdditionalData($request){
+    //Display data returned for GET
+    public function displayData($request){
         return [
 
         ];

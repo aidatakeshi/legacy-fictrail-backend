@@ -9,7 +9,7 @@ class VehiclePerformanceGroup extends Model{
 
     protected $table = 'vehicle_performance_groups';
     protected $primaryKey = 'id_auto';
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'id_auto', 'isDeleted'];
 
     //Fields Modifiable by PATCH / POST
     protected $fillable = [
@@ -27,7 +27,7 @@ class VehiclePerformanceGroup extends Model{
     ];
 
     //Filters
-    public static function filters($param){
+    public static function filters($query, $param){
     }
     
     //Sortings
@@ -39,8 +39,8 @@ class VehiclePerformanceGroup extends Model{
         return $this->hasMany(VehiclePerformaceItem::class, 'group_id', 'id');
     }
 
-    //Additional data returned for GET
-    public function getAdditionalData($request){
+    //Display data returned for GET
+    public function displayData($request){
         return [
 
         ];

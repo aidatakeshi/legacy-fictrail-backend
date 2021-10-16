@@ -7,7 +7,7 @@ class MapEditorSettings extends Model{
 
     protected $table = 'map_editor_settings';
     protected $primaryKey = 'id_auto';
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'id_auto', 'isDeleted'];
 
     //Fields Modifiable by PATCH / POST
     protected $fillable = [
@@ -25,7 +25,7 @@ class MapEditorSettings extends Model{
     ];
 
     //Filters
-    public static function filters($param){
+    public static function filters($query, $param){
     }
     
     //Sortings
@@ -34,8 +34,8 @@ class MapEditorSettings extends Model{
 
     //Resource Relationships
 
-    //Additional data returned for GET
-    public function getAdditionalData($request){
+    //Display data returned for GET
+    public function displayData($request){
         return [
 
         ];

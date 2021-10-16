@@ -9,11 +9,16 @@ class PrefectureArea extends Model{
 
     protected $table = 'prefecture_areas';
     protected $primaryKey = 'id_auto';
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'id_auto', 'isDeleted'];
 
     //Fields Modifiable by PATCH / POST
     protected $fillable = [
         'sort', 'name_chi', 'name_eng', 'remarks', 'other_info',
+    ];
+    
+    //JSON fields
+    protected $casts = [
+        'other_info' => 'object',
     ];
 
     //Data validations
@@ -29,7 +34,7 @@ class PrefectureArea extends Model{
     ];
 
     //Filters
-    public static function filters($param){
+    public static function filters($query, $param){
     }
     
     //Sortings
@@ -41,11 +46,14 @@ class PrefectureArea extends Model{
         return $this->hasMany(Prefecture::class, 'area_id', 'id');
     }
 
-    //Additional data returned for GET
-    public function getAdditionalData($request){
-        return [
-
-        ];
+    //Display data returned for GET
+    public function displayData($request){
+        $data = clone $this;
+        //"more" -> Get also prefectures as well
+        if ($request->input('more')){
+            $data->prefectures = $this->prefectures()->orderBy('sort', 'asc')->get();
+        }
+        return $data;
     }
 
     //Additional processing of data

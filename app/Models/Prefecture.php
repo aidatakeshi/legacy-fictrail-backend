@@ -9,7 +9,7 @@ class Prefecture extends Model{
 
     protected $table = 'prefectures';
     protected $primaryKey = 'id_auto';
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'id_auto', 'isDeleted'];
 
     //Fields Modifiable by PATCH / POST
     protected $fillable = [
@@ -17,6 +17,11 @@ class Prefecture extends Model{
         'name_chi', 'name_chi_suffix', 'name_chi_short',
         'name_eng', 'name_eng_suffix', 'name_eng_short',
         'remarks', 'other_info',
+    ];
+    
+    //JSON fields
+    protected $casts = [
+        'other_info' => 'object',
     ];
 
     //Data validations
@@ -32,9 +37,11 @@ class Prefecture extends Model{
     ];
 
     //Filters
-    public static function filters($param){
-        case 'area_id':
-        return ['query' => 'area_id = ?', 'params' => []];
+    public static function filters($query, $param){
+        switch ($query){
+            case 'area_id':
+            return ['query' => 'area_id = ?', 'params' => [$param]];
+        }
     }
     
     //Sortings
@@ -50,11 +57,14 @@ class Prefecture extends Model{
         return $this->belongsTo(PrefectureArea::class, 'area_id', 'id');
     }
 
-    //Additional data returned for GET
-    public function getAdditionalData($request){
-        return [
-
-        ];
+    //Display data returned for GET
+    public function displayData($request){
+        $data = clone $this;
+        //"more" -> Get also prefecture area as well
+        if ($request->input('more')){
+            $data->prefecture_area = $this->prefectureArea;
+        }
+        return $data;
     }
 
     //Additional processing of data

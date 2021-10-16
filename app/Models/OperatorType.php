@@ -9,11 +9,16 @@ class OperatorType extends Model{
 
     protected $table = 'operator_types';
     protected $primaryKey = 'id_auto';
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'id_auto', 'isDeleted'];
 
     //Fields Modifiable by PATCH / POST
     protected $fillable = [
         'sort', 'name_chi', 'name_eng', 'remarks', 'other_info',
+    ];
+    
+    //JSON fields
+    protected $casts = [
+        'other_info' => 'object',
     ];
 
     //Data validations
@@ -29,7 +34,7 @@ class OperatorType extends Model{
     ];
 
     //Filters
-    public static function filters($param){
+    public static function filters($query, $param){
     }
     
     //Sortings
@@ -41,8 +46,8 @@ class OperatorType extends Model{
         return $this->hasMany(Operator::class, 'operator_type_id', 'id');
     }
 
-    //Additional data returned for GET
-    public function getAdditionalData($request){
+    //Display data returned for GET
+    public function displayData($request){
         return [
 
         ];

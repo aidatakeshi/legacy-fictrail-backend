@@ -10,7 +10,7 @@ class TrainName extends Model{
 
     protected $table = 'train_names';
     protected $primaryKey = 'id_auto';
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'id_auto', 'isDeleted'];
 
     //Fields Modifiable by PATCH / POST
     protected $fillable = [
@@ -29,7 +29,7 @@ class TrainName extends Model{
     ];
 
     //Filters
-    public static function filters($param){
+    public static function filters($query, $param){
     }
     
     //Sortings
@@ -44,8 +44,8 @@ class TrainName extends Model{
         return $this->belongsTo(TrainType::class, 'train_type_id', 'id');
     }
 
-    //Additional data returned for GET
-    public function getAdditionalData($request){
+    //Display data returned for GET
+    public function displayData($request){
         return [
 
         ];

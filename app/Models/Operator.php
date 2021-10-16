@@ -9,7 +9,7 @@ class Operator extends Model{
 
     protected $table = 'operators';
     protected $primaryKey = 'id_auto';
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'id_auto', 'isDeleted'];
 
     //Fields Modifiable by PATCH / POST
     protected $fillable = [
@@ -17,6 +17,11 @@ class Operator extends Model{
         'name_chi', 'name_chi_short', 'name_eng', 'name_eng_short',
         'color', 'color_text', 'is_passenger_hr', 'logo_fileid',
         'remarks', 'other_info',
+    ];
+    
+    //JSON fields
+    protected $casts = [
+        'other_info' => 'object',
     ];
 
     //Data validations
@@ -32,8 +37,8 @@ class Operator extends Model{
     ];
 
     //Filters
-    public static function filters($param){
-        switch ($param){
+    public static function filters($query, $param){
+        switch ($query){
             case 'operator_type_id':
             return ['query' => 'operator_type_id = ?', 'params' => []];
             case 'name_chi',
@@ -56,8 +61,8 @@ class Operator extends Model{
         return $this->belongsTo(OperatorType::class, 'operator_type_id', 'id');
     }
 
-    //Additional data returned for GET
-    public function getAdditionalData($request){
+    //Display data returned for GET
+    public function displayData($request){
         return [
 
         ];

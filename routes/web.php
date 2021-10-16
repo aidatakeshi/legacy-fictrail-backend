@@ -39,4 +39,15 @@ $router->group(['middleware' => 'auth'], function ($router) {
     $router->post('items/{type}/{id}', ['uses' => 'GeneralResourceController@duplicateItem']);
     $router->patch('items/{type}/{id}', ['uses' => 'GeneralResourceController@updateItem']);
     $router->delete('items/{type}/{id}', ['uses' => 'GeneralResourceController@removeItem']);
-}
+});
+
+//Aliases
+$router->get('i/{type}', ['uses' => 'GeneralResourceController@getItems']);
+$router->get('i/{type}/{id}', ['uses' => 'GeneralResourceController@getItem']);
+
+$router->group(['middleware' => 'auth'], function ($router) {
+    $router->post('i/{type}', ['uses' => 'GeneralResourceController@createItem']);
+    $router->post('i/{type}/{id}', ['uses' => 'GeneralResourceController@duplicateItem']);
+    $router->patch('i/{type}/{id}', ['uses' => 'GeneralResourceController@updateItem']);
+    $router->delete('i/{type}/{id}', ['uses' => 'GeneralResourceController@removeItem']);
+});

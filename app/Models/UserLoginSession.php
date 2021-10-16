@@ -10,6 +10,6 @@ class UserLoginSession extends Model{
 
     protected $fillable = [];
     
-    protected $hidden = ['bearer_token', 'created_at', 'updated_at'];
+    protected $hidden = ['bearer_token', 'created_at', 'updated_at', 'id_auto', 'isDeleted'];
 
 }
