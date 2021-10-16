@@ -26,10 +26,12 @@ class Operator extends Model{
 
     //Data validations
     public static $validations_update = [
+        'operator_type_id' => 'exists:operator_types,id',
         'sort' => 'integer',
         'other_info' => 'json',
     ];
     public static $validations_new = [
+        'operator_type_id' => 'required|exists:operator_types,id',
         'sort' => 'integer',
         'name_chi' => 'required',
         'name_eng' => 'required',
@@ -41,13 +43,13 @@ class Operator extends Model{
         switch ($query){
             case 'operator_type_id':
             return ['query' => 'operator_type_id = ?', 'params' => []];
-            case 'name_chi',
-            return ['query' => 'name_chi LIKE ?', 'params' => ["%$param%"]];
-            case 'name_eng',
-            return ['query' => 'name_eng LIKE ?', 'params' => ["%$param%"]];
-            case 'is_passenger_hr',
+            case 'name_chi':
+            return ['query' => 'LOWER(name_chi) LIKE LOWER(?)', 'params' => ["%$param%"]];
+            case 'name_eng':
+            return ['query' => 'LOWER(name_eng) LIKE LOWER(?)', 'params' => ["%$param%"]];
+            case 'is_passenger_hr':
             return ['query' => 'is_passenger_hr = TRUE', 'params' => []];
-            case 'not_passenger_hr',
+            case 'not_passenger_hr':
             return ['query' => 'is_passenger_hr = FALSE', 'params' => []];
         }
     }
@@ -58,28 +60,17 @@ class Operator extends Model{
 
     //Resource Relationships
     public function operatorType(){
-        return $this->belongsTo(OperatorType::class, 'operator_type_id', 'id');
+        return $this->belongsTo(OperatorType::class, 'operator_type_id', 'id')->where('isDeleted', false);
     }
 
     //Display data returned for GET
     public function displayData($request){
-        return [
-
-        ];
-    }
-
-    //Additional processing of data
-    public function whenGet($request){
-
-    }
-    public function whenSet($request){
-        
-    }
-    public function whenCreated($request){
-
-    }
-    public function whenRemoved($request){
-
+        $data = clone $this;
+        //"more" -> Get also operator type as well
+        if ($request->input('more')){
+            $data->operatorType = $this->operatorType;
+        }
+        return $data;
     }
 
     /**

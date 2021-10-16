@@ -33,6 +33,7 @@ class ImportOldData_VehiclePerformances extends Command{
             for ($j = 0; $j < count($row); $j++) {
                 $column = pg_field_name($result, $j);
                 if ($column == 'sort') $row[$j] = intval($row[$j]);
+                if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
                 $item->{$column} = $row[$j];
             }
             $item->save();
@@ -50,6 +51,7 @@ class ImportOldData_VehiclePerformances extends Command{
             for ($j = 0; $j < count($row); $j++) {
                 $column = pg_field_name($result, $j);
                 if ($column == 'sort') $row[$j] = intval($row[$j]);
+                if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
                 $item->{$column} = $row[$j];
             }
             $item->save();

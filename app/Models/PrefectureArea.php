@@ -43,7 +43,7 @@ class PrefectureArea extends Model{
 
     //Resource Relationships
     public function prefectures(){
-        return $this->hasMany(Prefecture::class, 'area_id', 'id');
+        return $this->hasMany(Prefecture::class, 'area_id', 'id')->where('isDeleted', false);
     }
 
     //Display data returned for GET
@@ -54,20 +54,6 @@ class PrefectureArea extends Model{
             $data->prefectures = $this->prefectures()->orderBy('sort', 'asc')->get();
         }
         return $data;
-    }
-
-    //Additional processing of data
-    public function whenGet($request){
-
-    }
-    public function whenSet($request){
-        
-    }
-    public function whenCreated($request){
-
-    }
-    public function whenRemoved($request){
-
     }
 
     /**

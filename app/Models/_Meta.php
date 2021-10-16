@@ -23,8 +23,8 @@ class _Meta{
         'schdraft_templates' => \App\Models\SchdraftTemplate::class,
         'schedule_trips' => \App\Models\ScheduleTrip::class,
         'schedule_trip_stations' => \App\Models\ScheduleTripStation::class,
-        'train_names' => \App\Models\TrainNames::class,
-        'train_types' => \App\Models\TrainTypes::class,
+        'train_names' => \App\Models\TrainName::class,
+        'train_types' => \App\Models\TrainType::class,
         'vehicle_performance_groups' => \App\Models\VehiclePerformanceGroup::class,
         'vehicle_performance_items' => \App\Models\VehiclePerformanceItem::class,
 
@@ -42,10 +42,14 @@ class _Meta{
         'schdraft_template' => \App\Models\SchdraftTemplate::class,
         'schedule_trip' => \App\Models\ScheduleTrip::class,
         'schedule_trip_station' => \App\Models\ScheduleTripStation::class,
-        'train_name' => \App\Models\TrainNames::class,
-        'train_type' => \App\Models\TrainTypes::class,
+        'train_name' => \App\Models\TrainName::class,
+        'train_type' => \App\Models\TrainType::class,
         'vehicle_performance_group' => \App\Models\VehiclePerformanceGroup::class,
         'vehicle_performance_item' => \App\Models\VehiclePerformanceItem::class,
+
+        //Others
+        'test_item' => \App\Models\TestItem::class,
+        'test_items' => \App\Models\TestItem::class,
     ];
 
     public static $validation_error_messages = [
@@ -62,6 +66,7 @@ class _Meta{
         'integer' => 'Integer Required',
         'json' => 'JSON Required',
         'numeric' => 'Numeric Required',
+        'boolean' => 'Boolean Required',
         'regex' => 'Invalid Format',
         'required' => 'Required',
         'unique' => 'Should be Unique',

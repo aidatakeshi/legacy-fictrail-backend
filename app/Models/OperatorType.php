@@ -43,28 +43,17 @@ class OperatorType extends Model{
 
     //Resource Relationships
     public function operators(){
-        return $this->hasMany(Operator::class, 'operator_type_id', 'id');
+        return $this->hasMany(Operator::class, 'operator_type_id', 'id')->where('isDeleted', false);
     }
 
     //Display data returned for GET
     public function displayData($request){
-        return [
-
-        ];
-    }
-
-    //Additional processing of data
-    public function whenGet($request){
-
-    }
-    public function whenSet($request){
-        
-    }
-    public function whenCreated($request){
-
-    }
-    public function whenRemoved($request){
-
+        $data = clone $this;
+        //"more" -> Get also operators as well
+        if ($request->input('more')){
+            $data->operators = $this->operators()->orderBy('name_eng', 'asc')->get();
+        }
+        return $data;
     }
 
     /**

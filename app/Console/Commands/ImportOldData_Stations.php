@@ -35,6 +35,8 @@ class importOldData_Stations extends Command{
                 if ($column == 'sort') continue;
                 if ($column == 'height_m'){
                     $row[$j] = intval($row[$j]);
+                    if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
+                    if ($column == 'tracks') $row[$j] = json_decode($row[$j]);
                     if (!$row[$j]) $row[$j] = null;
                 }
                 $item->{$column} = $row[$j];
@@ -53,7 +55,9 @@ class importOldData_Stations extends Command{
             $item = new Line_Station;
             for ($j = 0; $j < count($row); $j++) {
                 $column = pg_field_name($result, $j);
-                if ($column == 'sort') continue;
+                if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
+                if ($column == 'segments') $row[$j] = json_decode($row[$j]);
+                if ($column == 'additional_time') $row[$j] = json_decode($row[$j]);
                 if ($column == 'distance_km' || $column == 'mileage_km'){
                     $row[$j] = floatval($row[$j]);
                 }

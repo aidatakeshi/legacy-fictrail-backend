@@ -40,10 +40,10 @@ class Station extends Model{
 
     //Resource Relationships
     public function operator(){
-        return $this->belongsTo(Operator::class, 'operator_id', 'id');
+        return $this->belongsTo(Operator::class, 'operator_id', 'id')->where('isDeleted', false);
     }
     public function prefecture(){
-        return $this->belongsTo(Prefecture::class, 'prefecture_id', 'id');
+        return $this->belongsTo(Prefecture::class, 'prefecture_id', 'id')->where('isDeleted', false);
     }
 
     //Display data returned for GET

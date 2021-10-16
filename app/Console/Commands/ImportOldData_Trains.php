@@ -35,6 +35,7 @@ class importOldData_Trains extends Command{
                 if ($column == 'is_premium'){
                     $row[$j] = $row[$j] ?? false;
                 }
+                if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
                 $item->{$column} = $row[$j];
             }
             $item->save();
@@ -52,6 +53,7 @@ class importOldData_Trains extends Command{
             for ($j = 0; $j < count($row); $j++) {
                 $column = pg_field_name($result, $j);
                 if ($column == 'sort') continue;
+                if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
                 $item->{$column} = $row[$j];
             }
             $item->save();

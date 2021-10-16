@@ -26,10 +26,12 @@ class Prefecture extends Model{
 
     //Data validations
     public static $validations_update = [
+        'area_id' => 'exists:prefecture_area,id',
         'sort' => 'integer',
         'other_info' => 'json',
     ];
     public static $validations_new = [
+        'area_id' => 'required|exists:prefecture_area,id',
         'sort' => 'integer',
         'name_chi' => 'required',
         'name_eng' => 'required',
@@ -54,7 +56,7 @@ class Prefecture extends Model{
 
     //Resource Relationships
     public function prefectureArea(){
-        return $this->belongsTo(PrefectureArea::class, 'area_id', 'id');
+        return $this->belongsTo(PrefectureArea::class, 'area_id', 'id')->where('isDeleted', false);
     }
 
     //Display data returned for GET
@@ -62,23 +64,9 @@ class Prefecture extends Model{
         $data = clone $this;
         //"more" -> Get also prefecture area as well
         if ($request->input('more')){
-            $data->prefecture_area = $this->prefectureArea;
+            $data->prefectureArea = $this->prefectureArea;
         }
         return $data;
-    }
-
-    //Additional processing of data
-    public function whenGet($request){
-
-    }
-    public function whenSet($request){
-        
-    }
-    public function whenCreated($request){
-
-    }
-    public function whenRemoved($request){
-
     }
 
     /**

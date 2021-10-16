@@ -17,13 +17,26 @@ class LineType extends Model{
         'name_chi', 'name_eng', 'major', 'is_passenger_hr', 'color',
         'remarks', 'other_info',
     ];
+    
+    //JSON fields
+    protected $casts = [
+        'other_info' => 'object',
+    ];
 
     //Data validations
     public static $validations_update = [
-
+        'sort' => 'integer',
+        'major' => 'boolean',
+        'is_passenger_hr' => 'boolean',
+        'other_info' => 'json',
     ];
     public static $validations_new = [
-
+        'sort' => 'integer',
+        'name_chi' => 'required',
+        'name_eng' => 'required',
+        'major' => 'boolean',
+        'is_passenger_hr' => 'boolean',
+        'other_info' => 'json',
     ];
 
     //Filters
@@ -32,32 +45,21 @@ class LineType extends Model{
     
     //Sortings
     public static $sort_default = 'sort';
-    public static $sortable = [];
+    public static $sortable = ['sort', 'name_chi', 'name_eng', 'major', 'is_passenger_hr'];
 
     //Resource Relationships
     public function lines(){
-        return $this->hasMany(Line::class, 'line_type_id', 'id');
+        return $this->hasMany(Line::class, 'line_type_id', 'id')->where('isDeleted', false);
     }
 
     //Display data returned for GET
     public function displayData($request){
-        return [
-
-        ];
-    }
-
-    //Additional processing of data
-    public function whenGet($request){
-
-    }
-    public function whenSet($request){
-        
-    }
-    public function whenCreated($request){
-
-    }
-    public function whenRemoved($request){
-
+        $data = clone $this;
+        //"more" -> Get also lines as well
+        if ($request->input('more')){
+            $data->lines = $this->lines()->orderBy('name_eng', 'asc')->get();
+        }
+        return $data;
     }
 
     /**

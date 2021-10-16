@@ -36,7 +36,7 @@ class SchdraftCategory extends Model{
 
     //Resource Relationships
     public function groups(){
-        return $this->hasMany(SchdraftGroup::class, 'category_id', 'id');
+        return $this->hasMany(SchdraftGroup::class, 'category_id', 'id')->where('isDeleted', false);
     }
 
     //Display data returned for GET

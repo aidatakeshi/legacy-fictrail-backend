@@ -45,7 +45,7 @@ class SchdraftTemplate extends Model{
 
     //Resource Relationships
     public function group(){
-        return $this->belongsTo(SchdraftGroup::class, 'group_id', 'id');
+        return $this->belongsTo(SchdraftGroup::class, 'group_id', 'id')->where('isDeleted', false);
     }
 
     //Display data returned for GET

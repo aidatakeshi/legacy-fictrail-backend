@@ -159,6 +159,7 @@ class InitialSetup extends Migration
         Schema::create('lines_stations', function (Blueprint $table) {
             $table->id('id_auto');
             $table->string('id')->unique();
+            $table->bigInteger('sort')->default(0);
             //
             $table->string('line_id')->nullable();
             $table->string('station_id')->nullable();

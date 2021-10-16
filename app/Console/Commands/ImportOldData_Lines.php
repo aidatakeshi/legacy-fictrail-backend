@@ -34,6 +34,7 @@ class importOldData_Lines extends Command{
             for ($j = 0; $j < count($row); $j++) {
                 $column = pg_field_name($result, $j);
                 if ($column == 'sort') continue;
+                if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
                 $item->{$column} = $row[$j];
             }
             $item->save();
@@ -51,6 +52,7 @@ class importOldData_Lines extends Command{
             for ($j = 0; $j < count($row); $j++) {
                 $column = pg_field_name($result, $j);
                 if ($column == 'sort') continue;
+                if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
                 $item->{$column} = $row[$j];
             }
             $item->save();
@@ -67,6 +69,7 @@ class importOldData_Lines extends Command{
             $item = new LineType;
             for ($j = 0; $j < count($row); $j++) {
                 $column = pg_field_name($result, $j);
+                if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
                 $item->{$column} = $row[$j];
             }
             $item->save();

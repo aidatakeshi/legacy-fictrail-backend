@@ -38,10 +38,10 @@ class SchdraftGroup extends Model{
 
     //Resource Relationships
     public function group(){
-        return $this->belongsTo(SchdraftCategory::class, 'category_id', 'id');
+        return $this->belongsTo(SchdraftCategory::class, 'category_id', 'id')->where('isDeleted', false);
     }
     public function templates(){
-        return $this->hasMany(SchdraftTemplate::class, 'group_id', 'id');
+        return $this->hasMany(SchdraftTemplate::class, 'group_id', 'id')->where('isDeleted', false);
     }
 
     //Display data returned for GET

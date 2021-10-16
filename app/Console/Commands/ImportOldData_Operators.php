@@ -32,6 +32,7 @@ class importOldData_Operators extends Command{
             $item = new OperatorType;
             for ($j = 0; $j < count($row); $j++) {
                 $column = pg_field_name($result, $j);
+                if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
                 $item->{$column} = $row[$j];
             }
             $item->save();
@@ -50,6 +51,7 @@ class importOldData_Operators extends Command{
                 $column = pg_field_name($result, $j);
                 if ($column == 'sort') continue;
                 if ($column == 'logo') continue;
+                if ($column == 'other_info') $row[$j] = json_decode($row[$j]);
                 $item->{$column} = $row[$j];
             }
             $item->save();
