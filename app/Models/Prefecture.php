@@ -62,6 +62,17 @@ class Prefecture extends Model{
     //Display data returned for GET
     public function displayData($request){
         $data = clone $this;
+        //Combine to name_chi_full, name_eng_full
+        $data->name_chi_full = $data->name_chi . $data->name_chi_suffix;
+        $data->name_eng_full = $data->name_eng .' '. $data->name_eng_suffix;
+        //"from_selecter" -> Only essential fields for selecter
+        if ($request->input("from_selecter")){
+            $data = (object)[
+                "id" => $data->id,
+                "name_chi_full" => $data->name_chi_full,
+                "name_eng_full" => $data->name_eng_full,
+            ];
+        }
         //"more" -> Get also prefecture area as well
         if ($request->input('more')){
             $data->prefectureArea = $this->prefectureArea;

@@ -66,6 +66,14 @@ class Operator extends Model{
     //Display data returned for GET
     public function displayData($request){
         $data = clone $this;
+        //"from_selecter" -> Only essential fields for selecter
+        if ($request->input("from_selecter")){
+            $data = (object)[
+                "id" => $data->id,
+                "name_chi" => $data->name_chi,
+                "name_eng" => $data->name_eng,
+            ];
+        }
         //"more" -> Get also operator type as well
         if ($request->input('more')){
             $data->operatorType = $this->operatorType;

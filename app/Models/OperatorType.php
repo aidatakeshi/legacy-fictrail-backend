@@ -49,9 +49,22 @@ class OperatorType extends Model{
     //Display data returned for GET
     public function displayData($request){
         $data = clone $this;
+        //"from_selecter" -> Only essential fields for selecter
+        if ($request->input("from_selecter")){
+            $data = (object)[
+                "id" => $data->id,
+                "name_chi" => $data->name_chi,
+                "name_eng" => $data->name_eng,
+            ];
+        }
         //"more" -> Get also operators as well
         if ($request->input('more')){
-            $data->operators = $this->operators()->orderBy('name_eng', 'asc')->get();
+            $query = $this->operators()->orderBy('name_eng', 'asc');
+            if ($request->input("from_selecter")){
+                $data->operators = $query->selectRaw('id, name_chi, name_eng')->get();
+            }else{
+                $data->operators = $query->get();
+            }
         }
         return $data;
     }

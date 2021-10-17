@@ -101,6 +101,9 @@ class SchdraftTemplate extends Model{
     //Display data returned for GET
     public function displayData($request){
         $data = clone $this;
+        //"from_selecter" -> Only essential fields for selecter
+        //TBD
+        
         //"more" -> Get also group as well
         if ($request->input('more')){
             $data->group = $this->group;

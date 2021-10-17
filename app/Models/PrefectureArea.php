@@ -49,9 +49,27 @@ class PrefectureArea extends Model{
     //Display data returned for GET
     public function displayData($request){
         $data = clone $this;
+        //"from_selecter" -> Only essential fields for selecter
+        if ($request->input("from_selecter")){
+            $data = (object)[
+                "id" => $data->id,
+                "name_chi" => $data->name_chi,
+                "name_eng" => $data->name_eng,
+            ];
+        }
         //"more" -> Get also prefectures as well
         if ($request->input('more')){
-            $data->prefectures = $this->prefectures()->orderBy('sort', 'asc')->get();
+            $query = $this->prefectures()->orderBy('sort', 'asc');
+            $data->prefectures = $query->get();
+            if ($request->input("from_selecter")){
+                foreach ($data->prefectures as $i => $item){
+                    $data->prefectures[$i] = [
+                        'id' => $item->id,
+                        'name_chi_full' => $item->name_chi . $item->name_chi_suffix,
+                        'name_eng_full' => $item->name_eng .' '. $item->name_eng_suffix,
+                    ];
+                }
+            }
         }
         return $data;
     }

@@ -77,6 +77,8 @@ class VehiclePerformanceItem extends Model{
     //Filters
     public static function filters($query, $param){
         switch ($query){
+            case 'group_id':
+            return ['query' => 'group_id = ?', 'params' => [$param]];
             case 'name_chi':
             return ['query' => 'LOWER(name_chi) LIKE LOWER(?)', 'params' => ["%$param%"]];
             case 'name_eng':
@@ -98,8 +100,17 @@ class VehiclePerformanceItem extends Model{
     //Display data returned for GET
     public function displayData($request){
         $data = clone $this;
-        //"hide_result" -> Hide result fields
-        if ($request->input('hide_result')){
+        
+        //"from_selecter" -> Only essential fields for selecter
+        if ($request->input("from_selecter")){
+            $data = (object)[
+                "id" => $data->id,
+                "name_chi" => $data->name_chi,
+                "name_eng" => $data->name_eng,
+            ];
+        }
+        //"show_result" missing -> Hide result fields
+        else if (!$request->input('show_result')){
             unset($data->calc_results_by_kph);
             unset($data->calc_results_other);
         }
