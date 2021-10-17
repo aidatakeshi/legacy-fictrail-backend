@@ -45,7 +45,7 @@ class TrainType extends Model{
     }
     
     //Sortings
-    public static $sort_default = 'sort';
+    public static $sort_default = '-sort';
     public static $sortable = [
         'sort', 'operator_id', 'name_chi', 'name_chi_short', 'name_eng', 'name_eng_short', 'is_premium',
     ];

@@ -13,7 +13,6 @@ class LineGroup extends Model{
 
     //Fields Modifiable by PATCH / POST
     protected $fillable = [
-        'sort',
         'name_chi', 'name_eng', 'name_eng_short',
         'remarks', 'other_info',
     ];
@@ -46,8 +45,8 @@ class LineGroup extends Model{
     }
     
     //Sortings
-    public static $sort_default = 'sort';
-    public static $sortable = ['sort', 'name_chi', 'name_eng', 'name_eng_short'];
+    public static $sort_default = 'name_eng';
+    public static $sortable = ['name_chi', 'name_eng', 'name_eng_short'];
 
     //Resource Relationships
     public function lines(){
