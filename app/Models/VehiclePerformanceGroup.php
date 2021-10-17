@@ -57,7 +57,7 @@ class VehiclePerformanceGroup extends Model{
     //Display data returned for GET
     public function displayData($request){
         $data = clone $this;
-        //"more" -> Get also items as well (limited fields)
+        //"more" -> Get also items as well (selected fields)
         if ($request->input('more')){
             $data->items = $this->items()
             ->selectRaw('id, sort, name_chi, name_eng, remarks, max_speed_kph, max_accel_kph_s')

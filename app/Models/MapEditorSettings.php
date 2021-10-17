@@ -15,13 +15,34 @@ class MapEditorSettings extends Model{
         'line_groups_locked', 'line_groups_hidden', 'line_groups_collapsed',
         'line_locked', 'line_hidden',
     ];
+    
+    //JSON fields
+    protected $casts = [
+        'line_groups_locked' => 'array',
+        'line_groups_hidden' => 'array',
+        'line_groups_collapsed' => 'array',
+        'line_locked' => 'array',
+        'line_hidden' => 'array',
+    ];
 
     //Data validations
     public static $validations_update = [
-
+        'lock_stations' => 'boolean',
+        'hide_stations' => 'boolean',
+        'line_groups_locked' => 'json',
+        'line_groups_hidden' => 'json',
+        'line_groups_collapsed' => 'json',
+        'line_locked' => 'json',
+        'line_hidden' => 'json',
     ];
     public static $validations_new = [
-
+        'lock_stations' => 'boolean',
+        'hide_stations' => 'boolean',
+        'line_groups_locked' => 'json',
+        'line_groups_hidden' => 'json',
+        'line_groups_collapsed' => 'json',
+        'line_locked' => 'json',
+        'line_hidden' => 'json',
     ];
 
     //Filters
@@ -29,30 +50,14 @@ class MapEditorSettings extends Model{
     }
     
     //Sortings
-    public static $sort_default = 'sort';
+    public static $sort_default = 'id';
     public static $sortable = [];
 
     //Resource Relationships
 
     //Display data returned for GET
     public function displayData($request){
-        return [
-
-        ];
-    }
-
-    //Additional processing of data
-    public function whenGet($request){
-
-    }
-    public function whenSet($request){
         
-    }
-    public function whenCreated($request){
-
-    }
-    public function whenRemoved($request){
-
     }
 
     /**

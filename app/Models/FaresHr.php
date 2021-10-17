@@ -16,10 +16,16 @@ class FaresHr extends Model{
 
     //Data validations
     public static $validations_update = [
-
+        'data' => 'json',
     ];
     public static $validations_new = [
-
+        'version' => 'required',
+        'data' => 'json',
+    ];
+    
+    //JSON fields
+    protected $casts = [
+        'data' => 'object',
     ];
 
     //Filters
@@ -27,29 +33,13 @@ class FaresHr extends Model{
     }
     
     //Sortings
-    public static $sort_default = 'sort';
-    public static $sortable = [];
+    public static $sort_default = 'id';
+    public static $sortable = ['id', 'version'];
 
     //Resource Relationships
 
     //Display data returned for GET
     public function displayData($request){
-        return [
-
-        ];
-    }
-
-    //Additional processing of data
-    public function whenGet($request){
-
-    }
-    public function whenSet($request){
-        
-    }
-    public function whenCreated($request){
-
-    }
-    public function whenRemoved($request){
 
     }
 
