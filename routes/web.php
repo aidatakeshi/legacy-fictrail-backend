@@ -51,3 +51,9 @@ $router->group(['middleware' => 'auth'], function ($router) {
     $router->patch('i/{type}/{id}', ['uses' => 'GeneralResourceController@updateItem']);
     $router->delete('i/{type}/{id}', ['uses' => 'GeneralResourceController@removeItem']);
 });
+
+/**
+ * Lines / Stations
+ */
+$router->get('line/{line_id}/stations', ['uses' => 'LineStationController@getStationsOfLine']);
+$router->get('station/{station_id}/lines', ['uses' => 'LineStationController@getLinesOfStation']);
