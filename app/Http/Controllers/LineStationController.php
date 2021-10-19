@@ -36,8 +36,8 @@ class LineStationController extends Controller{
             if ($request->input('from_selecter')){
                 $station = Station::where('id', $line_stations[$i]->station_id)
                 ->selectRaw('name_chi, name_eng')->first();
-                $line_stations[$i]->station_name_chi = ($station) ? $station->name_chi : null;
-                $line_stations[$i]->station_name_eng = ($station) ? $station->name_eng : null;
+                $line_stations[$i]->name_chi = ($station) ? $station->name_chi : null;
+                $line_stations[$i]->name_eng = ($station) ? $station->name_eng : null;
             }else{
                 $line_stations[$i]->station = $line_station->station;
             }
@@ -66,8 +66,8 @@ class LineStationController extends Controller{
             if ($request->input('from_selecter')){
                 $line = Line::where('id', $line_stations[$i]->line_id)
                 ->selectRaw('name_chi, name_eng')->first();
-                $line_stations[$i]->line_name_chi = ($line) ? $line->name_chi : null;
-                $line_stations[$i]->line_name_eng = ($line) ? $line->name_eng : null;
+                $line_stations[$i]->name_chi = ($line) ? $line->name_chi : null;
+                $line_stations[$i]->name_eng = ($line) ? $line->name_eng : null;
             }else{
                 $line_stations[$i]->line = $line_station->line;
             }

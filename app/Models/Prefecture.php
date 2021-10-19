@@ -26,12 +26,12 @@ class Prefecture extends Model{
 
     //Data validations
     public static $validations_update = [
-        'area_id' => 'exists:prefecture_area,id',
+        'area_id' => 'exists:prefecture_areas,id',
         'sort' => 'integer',
         'other_info' => 'json',
     ];
     public static $validations_new = [
-        'area_id' => 'required|exists:prefecture_area,id',
+        'area_id' => 'required|exists:prefecture_areas,id',
         'sort' => 'integer',
         'name_chi' => 'required',
         'name_eng' => 'required',

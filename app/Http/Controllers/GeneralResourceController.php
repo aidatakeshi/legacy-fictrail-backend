@@ -197,8 +197,8 @@ class GeneralResourceController extends Controller{
         //Proceed, create new resource
         $item = new $class;
         $item->id = $id;
-        foreach ($data as $k => $v) $item->{$k} = $v;
         $item->save();
+        $item->update($data);
 
         //Call whenCreated($request)
         if (method_exists($class, 'whenCreated')){

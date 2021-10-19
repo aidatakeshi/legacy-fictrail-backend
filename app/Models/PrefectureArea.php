@@ -65,10 +65,12 @@ class PrefectureArea extends Model{
                 foreach ($data->prefectures as $i => $item){
                     $data->prefectures[$i] = [
                         'id' => $item->id,
-                        'name_chi_full' => $item->name_chi . $item->name_chi_suffix,
-                        'name_eng_full' => $item->name_eng .' '. $item->name_eng_suffix,
                     ];
                 }
+            }
+            foreach ($data->prefectures as $i => $item){
+                $data->prefectures[$i]-> name_chi_full = $item->name_chi . $item->name_chi_suffix;
+                $data->prefectures[$i]-> name_eng_full = $item->name_eng .' '. $item->name_eng_suffix;
             }
         }
         return $data;
