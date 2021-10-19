@@ -61,16 +61,16 @@ class PrefectureArea extends Model{
         if ($request->input('more')){
             $query = $this->prefectures()->orderBy('sort', 'asc');
             $data->prefectures = $query->get();
-            if ($request->input("from_selecter")){
-                foreach ($data->prefectures as $i => $item){
-                    $data->prefectures[$i] = [
-                        'id' => $item->id,
+            foreach ($data->prefectures as $i => $item){
+                $data->prefectures[$i]->name_chi_full = $item->name_chi . $item->name_chi_suffix;
+                $data->prefectures[$i]->name_eng_full = $item->name_eng .' '. $item->name_eng_suffix;
+                if ($request->input("from_selecter")){
+                    $data->prefectures[$i] = (object)[
+                        'id' => $data->prefectures[$i]->id,
+                        'name_chi_full' => $data->prefectures[$i]->name_chi_full,
+                        'name_eng_full' => $data->prefectures[$i]->name_eng_full,
                     ];
                 }
-            }
-            foreach ($data->prefectures as $i => $item){
-                $data->prefectures[$i]-> name_chi_full = $item->name_chi . $item->name_chi_suffix;
-                $data->prefectures[$i]-> name_eng_full = $item->name_eng .' '. $item->name_eng_suffix;
             }
         }
         return $data;

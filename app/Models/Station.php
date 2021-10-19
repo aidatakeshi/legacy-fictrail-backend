@@ -89,12 +89,17 @@ class Station extends Model{
             return ['query' => 'LOWER(name_chi) LIKE LOWER(?)', 'params' => ["%$param%"]];
             case 'name_eng':
             return ['query' => 'LOWER(name_eng) LIKE LOWER(?)', 'params' => ["%$param%"]];
+            case 'name':
+            return [
+                'query' => '(LOWER(name_chi) LIKE LOWER(?)) OR (LOWER(name_eng) LIKE LOWER(?))',
+                'params' => ["%$param%", "%$param%"]
+            ];
         }
     }
     
     //Sortings
     public static $sort_default = 'sort';
-    public static $sortable = [];
+    public static $sortable = ['name_chi', 'name_eng', 'prefecture_id', 'operator_id'];
 
     //Resource Relationships
     public function operator(){
@@ -111,6 +116,19 @@ class Station extends Model{
         if ($request->input('more')){
             $data->operator = $this->operator;
             $data->prefecture = $this->prefecture;
+        }
+        //"list" -> For listing
+        if ($request->input('list')){
+            $operator = $this->operator;
+            $data->operator_name_chi = $operator ? $operator->name_chi : null;
+            $data->operator_name_eng = $operator ? $operator->name_eng : null;
+            $data->operator_color = $operator ? $operator->color : null;
+            $prefecture = $this->prefecture;
+            $data->prefecture_name_chi = $prefecture
+            ? ($prefecture->name_chi . $prefecture->name_chi_suffix) : null;
+            $data->prefecture_name_eng = $prefecture
+            ? ($prefecture->name_eng . ' ' . $prefecture->name_eng_suffix) : null;
+            $data->track_count = count($data->tracks);
         }
         //"line" -> Get also lines
         if ($request->input('line')){

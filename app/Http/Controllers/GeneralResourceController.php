@@ -109,6 +109,7 @@ class GeneralResourceController extends Controller{
             'count' => $count,
             'page' => $page,
             'pages' => $pages,
+            'limit' => $limit,
             'data' => $results,
         ];
 
