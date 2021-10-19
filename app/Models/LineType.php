@@ -64,13 +64,60 @@ class LineType extends Model{
             ];
         }
         //"more" -> Get also lines as well
-        if ($request->input('more')){
-            $query = $this->lines()->orderBy('name_eng', 'asc');
+        if ($request->input('more') || $request->input('list')){
+            $query = $this->lines();
+
+            //"sort"
+            switch($request->input("sort_lines")){
+                case 'name_eng':
+                $query = $query->orderBy('name_eng', 'asc'); break;
+                case '-name_eng':
+                $query = $query->orderBy('name_eng', 'desc'); break;
+                case 'name_chi':
+                $query = $query->orderBy('name_chi', 'asc'); break;
+                case '-name_chi':
+                $query = $query->orderBy('name_chi', 'desc'); break;
+                case 'operator_id':
+                $query = $query->orderBy('operator_id', 'asc')->orderBy('name_eng', 'asc'); break;
+                case '-operator_id':
+                $query = $query->orderBy('operator_id', 'desc')->orderBy('name_eng', 'desc'); break;
+                case 'max_speed_kph':
+                $query = $query->orderBy('max_speed_kph', 'asc')->orderBy('name_eng', 'asc'); break;
+                case '-max_speed_kph':
+                $query = $query->orderBy('max_speed_kph', 'desc')->orderBy('name_eng', 'desc'); break;
+                case 'length_km':
+                $query = $query->orderBy('length_km', 'asc')->orderBy('name_eng', 'asc'); break;
+                case '-length_km':
+                $query = $query->orderBy('length_km', 'desc')->orderBy('name_eng', 'desc'); break;
+                default:
+                $query = $query->orderBy('name_eng', 'asc');
+            }
+
+            //Other Filters
+            if ($request->input("operator_id")){
+                $query = $query->where('operator_id', $request->input("operator_id"));
+            }
+            if ($request->input("name")){
+                $where = '(LOWER(name_chi) LIKE LOWER(?)) OR (LOWER(name_eng) LIKE LOWER(?))';
+                $param = $request->input("name");
+                $query = $query->whereRaw($where, ["%$param%", "%$param%"])
+                ->where('line_type_id', $this->id);
+            }
+
+            //"from_selecter"
             if ($request->input("from_selecter")){
                 $data->lines = $query->selectRaw('id, name_chi, name_eng')->get();
             }else{
                 $data->lines = $query->get();
             }
+
+            //"list" -> For listing
+            if ($request->input('list')){
+                foreach ($data->lines as $i => $line){
+                    $data->lines[$i] = $line->dataForList();
+                }
+            }
+
         }
         return $data;
     }

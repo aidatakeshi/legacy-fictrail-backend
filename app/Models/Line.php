@@ -71,6 +71,11 @@ class Line extends Model{
             return ['query' => 'LOWER(name_chi) LIKE LOWER(?)', 'params' => ["%$param%"]];
             case 'name_eng':
             return ['query' => 'LOWER(name_eng) LIKE LOWER(?)', 'params' => ["%$param%"]];
+            case 'name':
+            return [
+                'query' => '(LOWER(name_chi) LIKE LOWER(?)) OR (LOWER(name_eng) LIKE LOWER(?))',
+                'params' => ["%$param%", "%$param%"]
+            ];
         }
     }
     
@@ -120,7 +125,24 @@ class Line extends Model{
             }
             $data->stations = $line_stations;
         }
+        //"list" -> For listing
+        if ($request->input('list')){
+            return $this->dataForList();
+        }
         return $data;
+    }
+
+    //Data For List
+    public function dataForList(){
+        $data = $this->toArray();
+        $operator = $this->operator;
+        $data['operator_name_chi'] = ($operator) ? $operator->name_chi : null;
+        $data['operator_name_eng'] = ($operator) ? $operator->name_eng : null;
+        $data['operator_color'] = ($operator) ? $operator->color : null;
+        $lineGroup = $this->lineGroup;
+        $data['line_group_name_chi'] = ($lineGroup) ? $lineGroup->name_chi : null;
+        $data['line_group_name_eng'] = ($lineGroup) ? $lineGroup->name_eng : null;
+        return (object) $data;
     }
 
     /**
