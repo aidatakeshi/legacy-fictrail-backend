@@ -35,7 +35,7 @@ class Station extends Model{
         'prefecture_id' => 'exists:prefectures,id',
         'x' => 'numeric',
         'y' => 'numeric',
-        'height_m' => 'integer',
+        'height_m' => 'nullable|integer',
         'tracks' => 'json',
         'track_cross_points' => 'json',
         'major' => 'boolean',

@@ -39,7 +39,7 @@ class Line_Station extends Model{
         'segments' => 'json',
         'distance_km' => 'numeric',
         'mileage_km' => 'numeric',
-        'max_speed_kph' => 'integer',
+        'max_speed_kph' => 'nullable|integer',
         'additional_time' => 'json',
         'other_info' => 'json',
     ];
@@ -52,7 +52,7 @@ class Line_Station extends Model{
         'segments' => 'json',
         'distance_km' => 'numeric',
         'mileage_km' => 'numeric',
-        'max_speed_kph' => 'integer',
+        'max_speed_kph' => 'nullable|integer',
         'additional_time' => 'json',
         'other_info' => 'json',
     ];

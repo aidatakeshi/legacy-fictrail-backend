@@ -31,7 +31,6 @@ class VehiclePerformanceGroup extends Model{
     public static $validations_new = [
         'sort' => 'integer',
         'name_chi' => 'required',
-        'name_eng' => 'required',
         'other_info' => 'json',
     ];
 
@@ -71,9 +70,10 @@ class VehiclePerformanceGroup extends Model{
             if ($request->input("from_selecter")){
                 $data->items = $query->selectRaw('id, name_chi, name_eng')->get();
             }else{
-                $data->items = $query
-                ->selectRaw('id, sort, name_chi, name_eng, remarks, max_speed_kph, max_accel_kph_s')
-                ->get();
+                $data->items = $query->selectRaw(implode(',', [
+                    'id', 'sort', 'name_chi', 'name_eng', 'remarks',
+                    'max_speed_kph', 'max_accel_kph_s', 'motor_ratio', 'motor_rated_kw',
+                ]))->get();
             }
         }
         return $data;

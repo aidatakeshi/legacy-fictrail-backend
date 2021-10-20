@@ -135,13 +135,17 @@ class Line extends Model{
     //Data For List
     public function dataForList(){
         $data = $this->toArray();
+        //Operator
         $operator = $this->operator;
         $data['operator_name_chi'] = ($operator) ? $operator->name_chi : null;
         $data['operator_name_eng'] = ($operator) ? $operator->name_eng : null;
         $data['operator_color'] = ($operator) ? $operator->color : null;
+        //Line Group
         $lineGroup = $this->lineGroup;
         $data['line_group_name_chi'] = ($lineGroup) ? $lineGroup->name_chi : null;
         $data['line_group_name_eng'] = ($lineGroup) ? $lineGroup->name_eng : null;
+        //Stations
+        $data['station_count'] = Line_Station::where('line_id', $this->id)->where('isDeleted', false)->count();
         return (object) $data;
     }
 

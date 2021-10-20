@@ -71,7 +71,6 @@ class VehiclePerformanceItem extends Model{
     public static $validations_new = [
         'group_id' => 'required|exists:vehicle_performance_groups,id',
         'name_chi' => 'required',
-        'name_eng' => 'required',
     ];
 
     //Filters

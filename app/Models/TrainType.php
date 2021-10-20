@@ -27,13 +27,13 @@ class TrainType extends Model{
     //Data validations
     public static $validations_update = [
         'sort' => 'integer',
-        'operator_id' => 'exists:operators,id',
+        'operator_id' => 'nullable|exists:operators,id',
         'is_premium' => 'boolean',
         'other_info' => 'json',
     ];
     public static $validations_new = [
         'sort' => 'integer',
-        'operator_id' => 'exists:operators,id',
+        'operator_id' => 'nullable|exists:operators,id',
         'name_chi' => 'required',
         'name_eng' => 'required',
         'is_premium' => 'boolean',
@@ -51,6 +51,9 @@ class TrainType extends Model{
     ];
 
     //Resource Relationships
+    public function operator(){
+        return $this->belongsTo(Operator::class, 'operator_id', 'id')->where('isDeleted', false);
+    }
     public function trainNames(){
         return $this->hasMany(TrainName::class, 'train_type_id', 'id')->where('isDeleted', false);
     }
@@ -68,12 +71,37 @@ class TrainType extends Model{
         }
         //"more" -> Get also train names as well
         if ($request->input('more')){
+            //Operator
+            $data->operator = $this->operator;
+
+            //Train Names
             $query = $this->trainNames()->orderBy('name_eng', 'asc');
+
+            //Filters
+            if ($request->input("major_operator_id")){
+                $query = $query->where('major_operator_id', $request->input("major_operator_id"));
+            }
+
+            //"from_selecter"
             if ($request->input("from_selecter")){
                 $data->trainNames = $query->selectRaw('id, name_chi, name_eng')->get();
             }else{
                 $data->trainNames = $query->get();
             }
+
+            //"list" -> For listing
+            if ($request->input('list')){
+                foreach ($data->trainNames as $i => $trainName){
+                    $data->trainNames[$i] = $trainName->dataForList();
+                }
+            }
+        }
+        //"list" -> For listing
+        else if ($request->input('list')){
+            $operator = $this->operator;
+            $data->operator_name_chi = $operator ? $operator->name_chi : null;
+            $data->operator_name_eng = $operator ? $operator->name_eng : null;
+            $data->operator_color = $operator ? $operator->color : null;
         }
         return $data;
     }

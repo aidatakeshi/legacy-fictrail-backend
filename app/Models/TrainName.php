@@ -85,7 +85,22 @@ class TrainName extends Model{
             $data->operator = $this->operator;
             $data->trainType = $this->trainType;
         }
+        //"list" -> For listing
+        else if ($request->input('list')){
+            return $this->dataForList();
+        }
         return $data;
+    }
+
+    //Data For List
+    public function dataForList(){
+        $data = $this->toArray();
+        //Operator
+        $operator = $this->operator;
+        $data['major_operator_name_chi'] = ($operator) ? $operator->name_chi : null;
+        $data['major_operator_name_eng'] = ($operator) ? $operator->name_eng : null;
+        $data['major_operator_color'] = ($operator) ? $operator->color : null;
+        return (object) $data;
     }
 
     /**
