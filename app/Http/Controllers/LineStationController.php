@@ -130,6 +130,8 @@ class LineStationController extends Controller{
             $data['mileage_by_line_type'][$line_type_id] += $length;
             $data['mileage_by_operator'][$operator_id] += $length;
             $data['mileage_by_line_type_operator'][$line_type_id][$operator_id] += $length;
+            $data['mileage_total'] += $length;
+
         }
 
         //Round results
@@ -145,6 +147,7 @@ class LineStationController extends Controller{
                 = round($data['mileage_by_line_type_operator'][$i][$j] * 10) / 10;
             }
         }
+        $data['mileage_total'] = round($data['mileage_total'] * 10) / 10;
 
         //Return Data
         return response()->json($data);
