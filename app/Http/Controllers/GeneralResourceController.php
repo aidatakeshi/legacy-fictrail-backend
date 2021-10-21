@@ -70,10 +70,12 @@ class GeneralResourceController extends Controller{
 
         //Handle Limit ($limit_default)
         $limit = intval($request->input('limit'));
-        if (!$limit) $limit = ($class)::$limit_default ?? 0;
-        if ($limit){
-            $query = $query->limit($limit);
+        if ($limit < 0){
+            $limit = 0;
+        }else if (!$limit){
+            $limit = ($class)::$limit_default ?? 0;
         }
+        if ($limit) $query = $query->limit($limit);
 
         //Handle Page
         $page = intval($request->input('page') ?? 1);
@@ -103,6 +105,16 @@ class GeneralResourceController extends Controller{
                 $results[$i]->whenGet($request);
             }
         }
+        
+        //"obj" -> translate array to obj with id as attribute
+        $obj_as_result = false;
+        if ($request->input('obj')){
+            $obj_as_result = true;
+            $results_obj = [];
+            foreach ($results as $i => $result){
+                $results_obj[$result->id] = $result;
+            }
+        }
 
         //Return Result
         return [
@@ -110,7 +122,7 @@ class GeneralResourceController extends Controller{
             'page' => $page,
             'pages' => $pages,
             'limit' => $limit,
-            'data' => $results,
+            'data' => $obj_as_result ? $results_obj : $results,
         ];
 
     }

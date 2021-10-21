@@ -117,13 +117,8 @@ class Line extends Model{
         }
         //"stations" -> Get also stations ("segment" -> show also segments)
         if ($request->input('stations')){
-            $line_stations = Line_Station::where('line_id', $this->id)->where('isDeleted', false)
+            $data->stations = Line_Station::where('line_id', $this->id)->where('isDeleted', false)
             ->orderBy('sort', 'asc')->get();
-            foreach ($line_stations as $i => $line_station){
-                $line_stations[$i]->station = $line_station->station;
-                if (!$request->input('segments')) unset($line_stations[$i]->segments);
-            }
-            $data->stations = $line_stations;
         }
         //"list" -> For listing
         if ($request->input('list')){
