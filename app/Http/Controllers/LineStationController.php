@@ -32,7 +32,10 @@ class LineStationController extends Controller{
         foreach ($line_stations as $i => $line_station){
             //Unset certain fields
             unset($line_stations[$i]->line_id);
-            unset($line_stations[$i]->segments);
+            //"show_segments"
+            if (!$request->input('show_segments')){
+                unset($line_stations[$i]->segments);
+            }
             //Get also station info
             //"from_selecter" -> Only essential fields for selecter
             if ($request->input('from_selecter')){

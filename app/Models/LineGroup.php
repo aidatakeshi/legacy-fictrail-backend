@@ -56,6 +56,10 @@ class LineGroup extends Model{
     //Display data returned for GET
     public function displayData($request){
         $data = clone $this;
+        //Show total distance
+        $length_total = Line::selectRaw('sum(length_km)')
+        ->where('isDeleted', false)->where('line_group_id', $this->id)->first()->sum;
+        $data->length_km_total = round(floatval($length_total), 1);
         //"from_selecter" -> Only essential fields for selecter
         if ($request->input("from_selecter")){
             $data = (object)[
