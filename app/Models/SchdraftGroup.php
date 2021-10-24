@@ -45,11 +45,14 @@ class SchdraftGroup extends Model{
 
     //Filters
     public static function filters($query, $param){
-
+        switch ($query){
+            case 'category_id':
+            return ['query' => 'category_id = ?', 'params' => [$param]];
+        }
     }
     
     //Sortings
-    public static $sort_default = 'sort';
+    public static $sort_default = 'sort,title';
     public static $sortable = ['sort', 'category_id', 'title'];
 
     //Resource Relationships
@@ -66,12 +69,21 @@ class SchdraftGroup extends Model{
         //"from_selecter" -> Only essential fields for selecter
         //TBD
         
-        //"more" -> Get also category & templates (selected fields) as well
+        //"more" -> Get also category as well
         if ($request->input('more')){
             $data->category = $this->category;
+        }
+        //"templates" -> Get also templates as well
+        if ($request->input('templates')){
             $data->templates = $this->templates()
-            ->selectRaw('sort, group_id, title, is_upbound, train_type_id, train_name_id, operator_id, remarks, is_enabled')
-            ->orderBy('id', 'asc')->get();
+            ->selectRaw('id, sort, group_id, title, is_upbound, pivot_time, pivot_time_adj, train_type_id, train_name_id, operator_id, remarks, is_enabled')
+            ->orderBy('sort', 'asc')->orderBy('title', 'asc')->get();
+        }
+        //"list" -> For listing
+        if ($request->input('list')){
+            foreach ($data->templates as $i => $template){
+                $data->templates[$i] = $template->dataForList();
+            }
         }
         return $data;
     }

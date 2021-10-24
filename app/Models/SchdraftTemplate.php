@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\SchdraftCategory;
 use App\Models\SchdraftGroup;
 use App\Models\SchdraftTemplate;
+use App\Models\Operator;
+use App\Models\TrainType;
+use App\Models\TrainName;
+use App\Models\VehiclePerformanceItem;
 
 class SchdraftTemplate extends Model{
 
@@ -86,16 +90,28 @@ class SchdraftTemplate extends Model{
 
     //Filters
     public static function filters($query, $param){
-        
+        switch ($query){
+            case 'group_id':
+            return ['query' => 'group_id = ?', 'params' => [$param]];
+        }
     }
     
     //Sortings
-    public static $sort_default = 'sort';
+    public static $sort_default = 'sort,title';
     public static $sortable = ['id', 'sort', 'group_id', 'title', 'is_upbound'];
 
     //Resource Relationships
     public function group(){
         return $this->belongsTo(SchdraftGroup::class, 'group_id', 'id')->where('isDeleted', false);
+    }
+    public function operator(){
+        return $this->belongsTo(Operator::class, 'operator_id', 'id')->where('isDeleted', false);
+    }
+    public function trainType(){
+        return $this->belongsTo(TrainType::class, 'train_type_id', 'id')->where('isDeleted', false);
+    }
+    public function trainName(){
+        return $this->belongsTo(TrainName::class, 'train_name_id', 'id')->where('isDeleted', false);
     }
 
     //Display data returned for GET
@@ -104,11 +120,42 @@ class SchdraftTemplate extends Model{
         //"from_selecter" -> Only essential fields for selecter
         //TBD
         
-        //"more" -> Get also group as well
+        //"more" -> Get also group and other relational info as well
         if ($request->input('more')){
             $data->group = $this->group;
+            $data->operator = $this->operator;
+            $data->trainType = $this->trainType;
+            $data->trainName = $this->trainName;
         }
+        //"list" -> For listing
+        if ($request->input('list')){
+            return $this->dataForList();
+        }
+        //"list" -> Get data for list (overrides all other params)
         return $data;
+    }
+
+    public function dataForList(){
+        $data = $this->toArray();
+        //Operator
+        $operator = $this->operator;
+        $data['operator_name_chi'] = ($operator) ? $operator->name_chi : null;
+        $data['operator_name_eng'] = ($operator) ? $operator->name_eng : null;
+        $data['operator_color'] = ($operator) ? $operator->color : null;
+        //TrainType
+        $attributes = ['name_chi', 'name_chi_short', 'name_eng', 'name_eng_short', 'color'];
+        $trainType = $this->trainType;
+        foreach ($attributes as $attr){
+            $data['train_type_'.$attr] = ($trainType) ? $trainType->{$attr} : null;
+        }
+        //TrainName
+        $attributes = ['name_chi', 'name_eng', 'color'];
+        $trainName = $this->trainName;
+        foreach ($attributes as $attr){
+            $data['train_name_'.$attr] = ($trainName) ? $trainName->{$attr} : null;
+        }
+        //Data
+        return (object) $data;
     }
 
     //Additional processing of data

@@ -92,17 +92,17 @@ class GeneralResourceController extends Controller{
         //Get Results
         $results = $query->get();
 
-        //Call displayData($request)
-        if (method_exists($class, 'displayData')){
-            foreach ($results as $i => $result){
-                $results[$i] = $results[$i]->displayData($request) ?? $results[$i];
-            }
-        }
-
         //Call whenGet($request)
         if (method_exists($class, 'whenGet')){
             foreach ($results as $i => $result){
                 $results[$i]->whenGet($request);
+            }
+        }
+
+        //Call displayData($request)
+        if (method_exists($class, 'displayData')){
+            foreach ($results as $i => $result){
+                $results[$i] = $results[$i]->displayData($request) ?? $results[$i];
             }
         }
         
@@ -144,17 +144,14 @@ class GeneralResourceController extends Controller{
             return response()->json(['error' => 'Item Not Found'], 404);
         }
 
-        //Call displayData($request)
-        if (method_exists($class, 'displayData')){
-            $additional_data = (object)($item->displayData($request) ?? []);
-            foreach ($additional_data as $k => $v){
-                $item = $item->displayData($request) ?? $item;
-            }
-        }
-
         //Call whenGet($request)
         if (method_exists($class, 'whenGet')){
             $item->whenGet($request);
+        }
+
+        //Call displayData($request)
+        if (method_exists($class, 'displayData')){
+            $item = $item->displayData($request) ?? $item;
         }
 
         //Return Data

@@ -42,7 +42,7 @@ class SchdraftCategory extends Model{
     }
     
     //Sortings
-    public static $sort_default = 'sort';
+    public static $sort_default = 'sort,title';
     public static $sortable = ['id', 'sort', 'title'];
 
     //Resource Relationships
@@ -56,8 +56,8 @@ class SchdraftCategory extends Model{
         //"from_selecter" -> Only essential fields for selecter
         //TBD
         
-        //"more" -> Get also groups as well
-        if ($request->input('more')){
+        //"groups" -> Get also groups as well
+        if ($request->input('groups')){
             $data->groups = $this->groups()->orderBy('id', 'asc')->get();
         }
         return $data;
