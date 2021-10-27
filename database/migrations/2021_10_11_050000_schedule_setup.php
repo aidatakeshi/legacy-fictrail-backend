@@ -61,19 +61,19 @@ class ScheduleSetup extends Migration
             $table->bigInteger('pivot_time')->default(43200);
             $table->bigInteger('pivot_time_adj')->default(0);
             $table->string('train_type_id')->nullable();
-            $table->json('train_type_mod')->default('{}');
+            $table->json('train_type_mod')->default('[]');
             $table->string('train_name_id')->nullable();
-            $table->json('train_name_mod')->default('{}');
+            $table->json('train_name_mod')->default('[]');
             $table->string('operator_id')->nullable();
-            $table->json('operator_id_mod')->default('{}');
+            $table->json('operator_id_mod')->default('[]');
             $table->string('vehicle_performance_id')->nullable();
             //
             $table->json('train_number_rule')->default('{}');
             $table->json('sch_template')->default('[]'); //Originally "schedule" in old backend
-            $table->json('mods')->default('{}');
-            $table->json('deployment')->default('{}');
+            $table->json('mods')->default('[]');
+            $table->json('deployment')->default('[]');
             //
-            $table->json('sch_output')->default('{}');
+            $table->json('sch_output')->default('[]');
             $table->text('line_ids_involved')->default('');
             $table->text('station_ids_involved')->default('');
             //

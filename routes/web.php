@@ -58,3 +58,7 @@ $router->group(['middleware' => 'auth'], function ($router) {
 $router->get('line-stats-hr', ['uses' => 'LineStationController@getLineStatsHR']);
 $router->get('line/{line_id}/stations', ['uses' => 'LineStationController@getStationsOfLine']);
 $router->get('station/{station_id}/lines', ['uses' => 'LineStationController@getLinesOfStation']);
+$router->post('station/get-by-ids', ['uses' => 'LineStationController@getStationByIDs']);
+
+$router->get('line/{line_id}/name', ['uses' => 'LineStationController@getLineName']);
+$router->get('station/{station_id}/name', ['uses' => 'LineStationController@getStationName']);

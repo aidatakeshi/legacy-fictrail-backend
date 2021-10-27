@@ -157,4 +157,34 @@ class LineStationController extends Controller{
 
     }
 
+    public function getStationByIDs(Request $request){
+        $ids = $request->input('ids') ?? [];
+        $from_selecter = $request->input('from_selecter');
+        if (!is_array($ids)) $ids = [];
+        //Retrieve Data
+        $results = [];
+        foreach ($ids as $id){
+            $query = Station::where('isDeleted', false)->where('id', $id);
+            if ($from_selecter){
+                $query = $query->selectRaw('id, name_chi, name_eng');
+            }
+            $station = $query->first();
+            if ($station) array_push($results, $station);
+        }
+        //Return Data
+        return response()->json(['data' => $results]);
+    }
+
+    public function getLineName(Request $request, $line_id){
+        $line = Line::where('id', $line_id)->selectRaw("name_chi, name_eng")->first();
+        if (!$line) return response()->json(["name_chi" => null, "name_eng" => null]);
+        return response()->json($line);
+    }
+
+    public function getStationName(Request $request, $station_id){
+        $station = Station::where('id', $station_id)->selectRaw("name_chi, name_eng")->first();
+        if (!$station) return response()->json(["name_chi" => null, "name_eng" => null]);
+        return response()->json($station);
+    }
+
 }

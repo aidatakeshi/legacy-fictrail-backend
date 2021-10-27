@@ -77,7 +77,8 @@ class SchdraftGroup extends Model{
         if ($request->input('templates')){
             $data->templates = $this->templates()
             ->selectRaw('id, sort, group_id, title, is_upbound, pivot_time, pivot_time_adj, train_type_id, train_name_id, operator_id, remarks, is_enabled')
-            ->orderBy('sort', 'asc')->orderBy('title', 'asc')->get();
+            ->orderBy('is_upbound', 'asc')->orderBy('pivot_time', 'asc')
+            ->orderBy('pivot_time_adj', 'asc')->orderBy('title', 'asc')->get();
         }
         //"list" -> For listing
         if ($request->input('list')){

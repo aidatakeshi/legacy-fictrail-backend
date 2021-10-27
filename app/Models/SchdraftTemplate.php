@@ -50,7 +50,7 @@ class SchdraftTemplate extends Model{
         'is_upbound' => 'boolean',
         'coupled_template_id' => 'nullable|exists:schdraft_templates,id',
         'pivot_time' => 'integer',
-        'pivot_time_adj' => 'json',
+        'pivot_time_adj' => 'integer',
         'train_type_id' => 'exists:train_types,id',
         'train_type_mod' => 'json',
         'train_name_id' => 'exists:train_names,id',
@@ -72,7 +72,7 @@ class SchdraftTemplate extends Model{
         'is_upbound' => 'boolean',
         'coupled_template_id' => 'nullable|exists:schdraft_templates,id',
         'pivot_time' => 'required|integer',
-        'pivot_time_adj' => 'json',
+        'pivot_time_adj' => 'integer',
         'train_type_id' => 'required|exists:train_types,id',
         'train_type_mod' => 'json',
         'train_name_id' => 'required|exists:train_names,id',
@@ -97,8 +97,11 @@ class SchdraftTemplate extends Model{
     }
     
     //Sortings
-    public static $sort_default = 'sort,title';
-    public static $sortable = ['id', 'sort', 'group_id', 'title', 'is_upbound'];
+    public static $sort_default = 'is_upbound,pivot_time,pivot_time_adj,title';
+    public static $sortable = [
+        'id', 'pivot_time', 'pivot_time_adj', 'group_id', 'title', 'is_upbound',
+        'train_type_id', 'train_name_id', 'operator_id',
+    ];
 
     //Resource Relationships
     public function group(){
@@ -118,8 +121,16 @@ class SchdraftTemplate extends Model{
     public function displayData($request){
         $data = clone $this;
         //"from_selecter" -> Only essential fields for selecter
-        //TBD
-        
+        if ($request->input("from_selecter")){
+            $data = (object)[
+                "id" => $data->id,
+                "title" => $data->title,
+            ];
+        }
+        //"group"
+        if ($request->input('group')){
+            $data->group = $this->group;
+        }
         //"more" -> Get also group and other relational info as well
         if ($request->input('more')){
             $data->group = $this->group;
