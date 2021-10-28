@@ -176,8 +176,8 @@ class LineStationController extends Controller{
     }
 
     public function getLineName(Request $request, $line_id){
-        $line = Line::where('id', $line_id)->selectRaw("name_chi, name_eng")->first();
-        if (!$line) return response()->json(["name_chi" => null, "name_eng" => null]);
+        $line = Line::where('id', $line_id)->selectRaw("name_chi, name_eng, color")->first();
+        if (!$line) return response()->json(["name_chi" => null, "name_eng" => null, "color" => null]);
         return response()->json($line);
     }
 
