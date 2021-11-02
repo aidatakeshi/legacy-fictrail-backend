@@ -124,5 +124,115 @@ class VehiclePerformanceItem extends Model{
      * Custom Methods
      */
 
+    //Calculate Travel Time
+    //{time_stop_stop, time_stop_pass, time_pass_stop, time_pass_pass}
+    public function getTravelTime($line_stations, $is_upbound, $is_express_track){
+        //Vehicle Max Speed
+        $max_speed_kph = $this->max_speed_kph;
+        $depart_additional_time_s = $this->depart_additional_time_s;
+        //Line-Station Section Max Speed; Get Distance
+        $distance_m = 0;
+        foreach ($line_stations as $ls_item){
+            $distance_m += ($ls_item->distance_km ?? 0) * 1000;
+            if ($ls_item->max_speed_kph){
+                if ($ls_item->max_speed_kph < $max_speed_kph) $max_speed_kph = $ls_item->max_speed_kph;
+            }
+        }
+        $speed_step = 5;
+        $full_speed_min_time = 5;
+        $max_speed_kph = floor($max_speed_kph / $speed_step) * $speed_step;
+
+        //time_stop_stop
+        for ($speed = $max_speed_kph; $speed >= $speed_step; $speed -= $speed_step){
+            $accel_dist = $this->calc_results_by_kph[$max_speed_kph]->accel_dist;
+            $accel_time = $this->calc_results_by_kph[$max_speed_kph]->accel_time;
+            $decel_dist = $this->calc_results_by_kph[$max_speed_kph]->decel_dist;
+            $decel_time = $this->calc_results_by_kph[$max_speed_kph]->decel_time;
+            $full_speed_time = ($distance_m - $accel_dist - $decel_dist) / $max_speed_kph * 3.6;
+            if ($full_speed_time >= $full_speed_min_time){
+                $time_stop_stop = ceil($accel_time + $decel_time + $full_speed_time + $depart_additional_time_s);
+                $max_speed_stop_stop = $speed;
+                break;
+            }
+        }
+
+        //time_stop_pass
+        for ($speed = $max_speed_kph; $speed >= $speed_step; $speed -= $speed_step){
+            $accel_dist = $this->calc_results_by_kph[$max_speed_kph]->accel_dist;
+            $accel_time = $this->calc_results_by_kph[$max_speed_kph]->accel_time;
+            $decel_dist = $this->calc_results_by_kph[$max_speed_kph]->decel_dist;
+            $decel_time = $this->calc_results_by_kph[$max_speed_kph]->decel_time;
+            $full_speed_time = ($distance_m - $accel_dist) / $max_speed_kph * 3.6;
+            if ($full_speed_time >= $full_speed_min_time){
+                $time_stop_pass = ceil($accel_time + $full_speed_time + $depart_additional_time_s / 2);
+                $max_speed_stop_pass = $speed;
+                break;
+            }
+        }
+
+        //time_pass_stop
+        for ($speed = $max_speed_kph; $speed >= $speed_step; $speed -= $speed_step){
+            $accel_dist = $this->calc_results_by_kph[$max_speed_kph]->accel_dist;
+            $accel_time = $this->calc_results_by_kph[$max_speed_kph]->accel_time;
+            $decel_dist = $this->calc_results_by_kph[$max_speed_kph]->decel_dist;
+            $decel_time = $this->calc_results_by_kph[$max_speed_kph]->decel_time;
+            $full_speed_time = ($distance_m - $decel_dist) / $max_speed_kph * 3.6;
+            if ($full_speed_time >= $full_speed_min_time){
+                $time_pass_stop = ceil($decel_time + $full_speed_time + $depart_additional_time_s / 2);
+                $max_speed_pass_stop = $speed;
+                break;
+            }
+        }
+
+        //time_pass_pass
+        $time_pass_pass = ceil($distance_m / $max_speed_kph * 3.6);
+        $max_speed_pass_pass = $max_speed_kph;
+
+        //Additional Time
+        foreach ($line_stations as $i => $ls_item){
+            $is_first = $i == 0;
+            $is_last = $i == count($line_stations) - 1;
+            $additional_time = $ls_item->additional_time ?? (object)[];
+            //Basic
+            $a_time_s = ($additional_time->basic ?? 0);
+            $time_stop_stop += $a_time_s;
+            $time_stop_pass += $a_time_s;
+            $time_pass_stop += $a_time_s;
+            $time_pass_pass += $a_time_s;
+            //Upbound / Downbound
+            $a_time_s = $is_upbound ? ($additional_time->upbound ?? 0) : ($additional_time->downbound ?? 0);
+            $time_stop_stop += $a_time_s;
+            $time_stop_pass += $a_time_s;
+            $time_pass_stop += $a_time_s;
+            $time_pass_pass += $a_time_s;
+            //Local / Express
+            $a_time_s = $is_express_track ? ($additional_time->express ?? 0) : ($additional_time->local ?? 0);
+            $time_stop_stop += $a_time_s;
+            $time_stop_pass += $a_time_s;
+            $time_pass_stop += $a_time_s;
+            $time_pass_pass += $a_time_s;
+            //Stop / Pass
+            $pass1_s = $is_upbound ? ($additional_time->pass_down ?? 0) : ($additional_time->pass_up ?? 0);
+            $pass2_s = $is_upbound ? ($additional_time->pass_up ?? 0) : ($additional_time->pass_down ?? 0);
+            $stop1_s = $is_upbound ? ($additional_time->stop_down ?? 0) : ($additional_time->stop_up ?? 0);
+            $stop2_s = $is_upbound ? ($additional_time->stop_up ?? 0) : ($additional_time->stop_down ?? 0);
+            $time_stop_stop += ($is_first ? $stop1_s : $pass1_s) + ($is_last ? $stop2_s : $pass2_s);
+            $time_stop_pass += ($is_first ? $stop1_s : $pass1_s) + $pass2_s;
+            $time_pass_stop += $pass1_s + ($is_last ? $stop2_s : $pass2_s);
+            $time_pass_pass += $pass1_s + $pass2_s;
+        }
+
+        //Return Data
+        return [
+            'time_stop_stop' => $time_stop_stop,
+            'max_speed_stop_stop' => $max_speed_stop_stop,
+            'time_stop_pass' => $time_stop_pass,
+            'max_speed_stop_pass' => $max_speed_stop_pass,
+            'time_pass_stop' => $time_pass_stop,
+            'max_speed_pass_stop' => $max_speed_pass_stop,
+            'time_pass_pass' => $time_pass_pass,
+            'max_speed_pass_pass' => $max_speed_pass_pass,
+        ];
+    }
 
 }

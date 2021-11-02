@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Line;
 use App\Models\Station;
+use App\Models\VehiclePerformanceItem;
 
 class Line_Station extends Model{
 
@@ -101,5 +102,49 @@ class Line_Station extends Model{
      * Custom Methods
      */
 
+    //Get Line-Station Items given Line ID, Station IDs (start/end), Direction
+    public static function getLineStationItems($line_id, $station1_id, $station2_id, $is_upbound){
+        $ls_items_all = self::where('line_id', $line_id)->where('isDeleted', false)->orderBy('sort', 'asc')->get();
+        if ($is_upbound){
+            $station_upper = $station2_id;
+            $station_lower = $station1_id;
+        }else{
+            $station_upper = $station1_id;
+            $station_lower = $station2_id;
+        }
+        //Find station_upper_index
+        $station_upper_index = null;
+        foreach ($ls_items_all as $i => $ls_item){
+            if (($ls_item->station_id ?? null) == $station_upper){
+                $station_upper_index = $i + 1;
+                break;
+            }
+        }
+        //Find station lower_index
+        $station_lower_index = null;
+        foreach ($ls_items_all as $i => $ls_item){
+            if (($ls_item->station_id ?? null) == $station_lower && $i >= $station_upper_index){
+                $station_lower_index = $i;
+                break;
+            }
+        }
+        //Push relevant data to results array
+        $result = [];
+        for ($i = $station_upper_index; $i <= $station_lower_index; $i++){
+            $item = $ls_items_all[$i];
+            //Manipulate Data
+            unset($item->segments);
+            $item->station1_id = $ls_items_all[$i-($is_upbound ? 0 : 1)]->station_id ?? null;
+            $item->station2_id = $ls_items_all[$i-($is_upbound ? 1 : 0)]->station_id ?? null;
+            //Push to Results
+            array_push($result, $item);
+        }
+        //If is_upbound, reverse results
+        if ($is_upbound){
+            $result = array_reverse($result);
+        }
+        return $result;
+        
+    }
 
 }

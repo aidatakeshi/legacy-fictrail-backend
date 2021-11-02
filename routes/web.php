@@ -62,3 +62,8 @@ $router->post('station/get-by-ids', ['uses' => 'LineStationController@getStation
 
 $router->get('line/{line_id}/name', ['uses' => 'LineStationController@getLineName']);
 $router->get('station/{station_id}/name', ['uses' => 'LineStationController@getStationName']);
+
+/**
+ * Schedule Template
+ */
+$router->post('schdraft-editor/sch-template-info', ['uses' => 'SchDraftController@provideSchTemplateInfo']);

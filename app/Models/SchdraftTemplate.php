@@ -170,22 +170,31 @@ class SchdraftTemplate extends Model{
     }
 
     //Additional processing of data
-    public function whenGet($request){
-
+    public function whenCreated($request){
+        $this->whenSet($request);
     }
     public function whenSet($request){
-        
-    }
-    public function whenCreated($request){
-
-    }
-    public function whenRemoved($request){
-
+        $this->updateInvolvedLinesAndStations();
     }
 
     /**
      * Custom Methods
      */
+
+    //Update Involved Lines & Stations
+    public function updateInvolvedLinesAndStations(){
+        $lines = [];
+        $stations = [];
+        foreach ($this->sch_template as $item){
+            $line_id = $item['line_id'] ?? null;
+            $station_id = $item['station_id'] ?? null;
+            if ($line_id && !in_array($line_id, $lines)) array_push($lines, $line_id);
+            if ($station_id && !in_array($station_id, $stations)) array_push($stations, $station_id);
+        }
+        $this->line_ids_involved = '|'.implode('|', $lines).'|';
+        $this->station_ids_involved = '|'.implode('|', $stations).'|';
+        $this->save();
+    }
 
 
 }

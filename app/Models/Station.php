@@ -149,5 +149,11 @@ class Station extends Model{
      * Custom Methods
      */
 
+    //Get Station Name by ID
+    public static function getNameById($id, $isEnglish = false){
+        $station = self::where('isDeleted', false)->where('id', $id)->first();
+        if (!$station) return null;
+        return $isEnglish ? $station->name_eng : $station->name_chi;
+    }
 
 }
