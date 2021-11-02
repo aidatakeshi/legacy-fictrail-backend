@@ -27,6 +27,7 @@ class SchdraftTemplate extends Model{
         'operator_id', 'operator_id_mod',
         'vehicle_performance_id',
         'train_number_rule', 'sch_template', 'mods', 'deployment',
+        'station_begin_mod', 'station_terminate_mod',
         'remarks', 'other_info', 'is_enabled',
     ];
     
@@ -39,6 +40,8 @@ class SchdraftTemplate extends Model{
         'train_number_rule' => 'object',
         'sch_template' => 'array',
         'mods' => 'array',
+        'station_begin_mod' => 'array',
+        'station_terminate_mod' => 'array',
         'deployment' => 'object',
         'other_info' => 'object',
     ];
@@ -61,6 +64,8 @@ class SchdraftTemplate extends Model{
         'train_number_rule' => 'json',
         'sch_template' => 'json',
         'mods' => 'json',
+        'station_begin_mod' => 'json',
+        'station_terminate_mod' => 'json',
         'deployment' => 'json',
         'other_info' => 'json',
         'is_enabled' => 'boolean',
@@ -83,6 +88,8 @@ class SchdraftTemplate extends Model{
         'train_number_rule' => 'json',
         'sch_template' => 'json',
         'mods' => 'json',
+        'station_begin_mod' => 'json',
+        'station_terminate_mod' => 'json',
         'deployment' => 'json',
         'other_info' => 'json',
         'is_enabled' => 'boolean',
