@@ -73,7 +73,7 @@ class ScheduleSetup extends Migration
             $table->json('mods')->default('[]');
             $table->json('deployment')->default('[]');
             //
-            $table->json('sch_output')->default('[]');
+            $table->json('sch_output')->default('{}');
             $table->text('line_ids_involved')->default('');
             $table->text('station_ids_involved')->default('');
             //

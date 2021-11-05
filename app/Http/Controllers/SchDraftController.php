@@ -101,4 +101,15 @@ class SchDraftController extends Controller{
 
     }
 
+    /**
+     * GET schdraft-template/{id}/sch-output
+     */
+    public function getSchTemplateOutput(Request $request, $id){
+        $sd_template = SchdraftTemplate::where('isDeleted', false)->where('id', $id)->first();
+        if (!$sd_template) return response()->json(['error' => 'Not Found'], 404);
+        //Return Data
+        $sd_template->whenSet($request);
+        return response()->json(['data' => $sd_template->sch_output]);
+    }
+
 }

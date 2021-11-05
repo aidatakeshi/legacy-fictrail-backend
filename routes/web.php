@@ -67,3 +67,4 @@ $router->get('station/{station_id}/name', ['uses' => 'LineStationController@getS
  * Schedule Template
  */
 $router->post('schdraft-editor/sch-template-info', ['uses' => 'SchDraftController@provideSchTemplateInfo']);
+$router->get('schdraft-template/{id}/sch-output', ['uses' => 'SchDraftController@getSchTemplateOutput']);
