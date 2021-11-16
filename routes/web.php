@@ -67,4 +67,31 @@ $router->get('station/{station_id}/name', ['uses' => 'LineStationController@getS
  * Schedule Template
  */
 $router->post('schdraft-editor/sch-template-info', ['uses' => 'SchDraftController@provideSchTemplateInfo']);
-$router->get('schdraft-template/{id}/sch-output', ['uses' => 'SchDraftController@getSchTemplateOutput']);
+$router->get('schdraft-output/template/{id}', ['uses' => 'SchDraftController@getSchTemplateOutput']);
+$router->get('schdraft-output/line/{line_id}', [
+    'uses' => 'SchDraftController@getLineSchedule'
+]);
+$router->get('schdraft-output/line/{line_id}/{direction}', [
+    'uses' => 'SchDraftController@getLineSchedule'
+]);
+$router->get('schdraft-output/line/{line_id}/{direction}/{daytype}', [
+    'uses' => 'SchDraftController@getLineSchedule'
+]);
+$router->get('schdraft-output/station/{station_id}/track/{track_no}', [
+    'uses' => 'SchDraftController@getStationTrackSchedule'
+]);
+$router->get('schdraft-output/station/{station_id}/track/{track_no}/{daytype}', [
+    'uses' => 'SchDraftController@getStationTrackSchedule'
+]);
+$router->get('schdraft-output/station/{station_id}/line/{line_id}', [
+    'uses' => 'SchDraftController@getStationLineSchedule'
+]);
+$router->get('schdraft-output/station/{station_id}/line/{line_id}/{direction}', [
+    'uses' => 'SchDraftController@getStationLineSchedule'
+]);
+$router->get('schdraft-output/station/{station_id}/line/{line_id}/{direction}/{daytype}', [
+    'uses' => 'SchDraftController@getStationLineSchedule'
+]);
+$router->get('schdraft-output/station/{station_id}/track-crossing-points', [
+    'uses' => 'SchDraftController@getStationTrackCrossingPoints'
+]);

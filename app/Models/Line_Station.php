@@ -120,6 +120,7 @@ class Line_Station extends Model{
                 break;
             }
         }
+        if ($station_upper_index === null) return null;
         //Find station lower_index
         $station_lower_index = null;
         foreach ($ls_items_all as $i => $ls_item){
@@ -128,6 +129,7 @@ class Line_Station extends Model{
                 break;
             }
         }
+        if ($station_lower_index === null) return null;
         //Push relevant data to results array
         $result = [];
         for ($i = $station_upper_index; $i <= $station_lower_index; $i++){

@@ -9,6 +9,7 @@ use App\Models\SchdraftTemplate;
 use App\Models\Operator;
 use App\Models\TrainType;
 use App\Models\TrainName;
+use App\Models\Line_Station;
 use App\Models\VehiclePerformanceItem;
 
 class SchdraftTemplate extends Model{
@@ -473,30 +474,42 @@ class SchdraftTemplate extends Model{
         $data->begin_index = $begin_index;
         $data->terminate_index = $terminate_index;
 
-        //schedule
+        //schedule, crossings
         $pivot_time_diff = $pivot_time - $this->pivot_time;
         $data->schedule = [];
+        $data->crossings = [];
+        //For each item
         for ($i = $begin_index; $i <= $terminate_index; $i++){
             $template_item = (object)$this->sch_template[$i];
-            if ($template_item->is_cross ?? false) continue;
+            $is_cross = ($template_item->is_cross ?? false);
             //Prepare Schedule Item
-            $sch_item = (object)[];
+            $item = (object)[];
             //Line, Station, etc
-            $sch_item->line_id = ($i < $terminate_index) ? $template_item->line_id : null;
-            $sch_item->is_upbound = ($i < $terminate_index) ? $template_item->is_upbound : null;
-            $sch_item->station_id = $template_item->station_id;
+            if (!$is_cross){
+                $item->line_id = ($i < $terminate_index) ? ($template_item->line_id ?? null) : null;
+                $item->is_upbound = ($i < $terminate_index) ? ($template_item->is_upbound ?? null) : null;
+            }
+            $item->station_id = $template_item->station_id ?? null;
+            if ($is_cross){
+                $item->cross_id = $template_item->cross_id ?? null;
+            }
             //time1, time2, is_pass, track, is_express_track
-            $sch_item->track = $template_item->track;
-            $sch_item->is_express_track = $template_item->is_express_track;
-            $sch_item->is_pass = $template_item->is_pass;
+            if (!$is_cross){
+                $item->track = $template_item->track ?? null;
+                $item->is_express_track = $template_item->is_express_track ?? false;
+                $item->is_pass = $template_item->is_pass ?? false;
+            }
             $time1_in_template = $template_item->time1 ?? null;
             $time2_in_template = $template_item->time2 ?? null;
             foreach ($mods as $mod){
                 $mod_item = self::getMod($template_item->mod ?? [], $mod);
                 if (!$mod_item) continue;
-                if ($mod_item->track !== null) $sch_item->track = $mod_item->track;
-                if ($mod_item->is_express_track !== null) $sch_item->is_express_track = $mod_item->is_express_track;
-                if ($mod_item->is_pass !== null) $sch_item->is_pass = $mod_item->is_pass;
+                if (($mod_item->track ?? null) !== null)
+                    $item->track = $mod_item->track;
+                if (($mod_item->is_express_track ?? null) !== null)
+                    $item->is_express_track = $mod_item->is_express_track;
+                if (($mod_item->is_pass ?? null) !== null)
+                    $item->is_pass = $mod_item->is_pass;
                 //time1
                 if ($mod_item->time1_shift !== null && $time1_in_template){
                     $time1_in_template = $template_item->time1 + $mod_item->time1_shift;
@@ -514,17 +527,21 @@ class SchdraftTemplate extends Model{
                     $time2_in_template = $mod_item->time2;
                 }
             }
-            $sch_item->time1 = ($time1_in_template !== null && $i > $begin_index)
+            $item->time1 = ($time1_in_template !== null && $i > $begin_index)
             ? ($time1_in_template + $pivot_time_diff) : null;
-            $sch_item->time2 = ($time2_in_template !== null && $i < $terminate_index)
+            $item->time2 = ($time2_in_template !== null && $i < $terminate_index)
             ? ($time2_in_template + $pivot_time_diff) : null;
 
-            //Push Schedule Item
-            array_push($data->schedule, $sch_item);
-        }
+            //mileage_km
 
-        //track_crossings
-        $data->crossings = [];
+
+            //Push Schedule Item
+            if (!$is_cross){
+                array_push($data->schedule, $item);
+            }else{
+                array_push($data->crossings, $item);
+            }
+        }
 
         //Return Data
         return $data;
