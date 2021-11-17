@@ -191,6 +191,18 @@ class SchdraftTemplate extends Model{
      * Custom Methods
      */
 
+    //Is Enabled?
+    public function isEnabled(){
+        if (!$this->is_enabled) return false;
+        $group = SchdraftGroup::where('id', $this->group_id)
+            ->where('isDeleted', false)->where('is_enabled', true)->first();
+        if (!$group) return false;
+        $category = SchdraftCategory::where('id', $group->category_id)
+            ->where('isDeleted', false)->where('is_enabled', true)->first();
+        if (!$category) return false;
+        return true;
+    }
+
     //Update Involved Lines & Stations
     public function updateInvolvedLinesAndStations(){
         $lines = [];

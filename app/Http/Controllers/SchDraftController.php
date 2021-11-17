@@ -191,33 +191,179 @@ class SchDraftController extends Controller{
         //Proceed
         if ($direction && $daytype){
             return response()->json([
-                'data' => $this->getLineSchedule_sub($line_id, $direction, $daytype),
+                'data' => $this->getLineSchedule_sub($line, $direction, $daytype),
             ]);
         }else if ($direction){
             return response()->json([
                 'data' => [
-                    'wk' => $this->getLineSchedule_sub($line_id, $direction, 'wk'),
-                    'ph' => $this->getLineSchedule_sub($line_id, $direction, 'ph'),
+                    'wk' => $this->getLineSchedule_sub($line, $direction, 'wk'),
+                    'ph' => $this->getLineSchedule_sub($line, $direction, 'ph'),
                 ],
             ]);
         }else{
             return response()->json([
                 'data' => [
                     'up' => [
-                        'wk' => $this->getLineSchedule_sub($line_id, 'up', 'wk'),
-                        'ph' => $this->getLineSchedule_sub($line_id, 'up', 'ph'),
+                        'wk' => $this->getLineSchedule_sub($line, 'up', 'wk'),
+                        'ph' => $this->getLineSchedule_sub($line, 'up', 'ph'),
                     ],
                     'dn' => [
-                        'wk' => $this->getLineSchedule_sub($line_id, 'dn', 'wk'),
-                        'ph' => $this->getLineSchedule_sub($line_id, 'dn', 'ph'),
+                        'wk' => $this->getLineSchedule_sub($line, 'dn', 'wk'),
+                        'ph' => $this->getLineSchedule_sub($line, 'dn', 'ph'),
                     ],
                 ],
             ]);
         }
     }
 
-    private function getLineSchedule_sub($line_id, $direction, $daytype){
-        return [$line_id, $direction, $daytype];
+    private function getLineSchedule_sub($line, $direction, $daytype){
+        $is_upbound = ($direction == 'up');
+
+        //Get Station List
+        $station_list = $line->getStationList($direction == 'up');
+        foreach ($station_list as $i => $item){
+            $station = Station::where('id', $item->station_id)->first();
+            $station_list[$i]['name_chi'] = $station ? $station->name_chi : null;
+            $station_list[$i]['name_eng'] = $station ? $station->name_eng : null;
+        }
+
+        //Get Templates related to this line
+        $templates = SchdraftTemplate::where('isDeleted', false)->where('is_enabled', true)
+        ->whereRaw('line_ids_involved LIKE ?', '%'.$line->id.'%')->get();
+
+        //Prepare data
+        $schedule = [];
+
+        //For each template
+        foreach ($templates as $template){
+            if (!$template->isEnabled()) continue;
+            $trips = $template->sch_output[$daytype] ?? [];
+            //For each trip
+            foreach ($trips as $trip){
+                //Check if line involved in this trip
+                $line_involved = false;
+                foreach ($trip['schedule'] as $item){
+                    if (($item['line_id'] == $line->id) && ($item['is_upbound'] == $is_upbound)){
+                        $line_involved = true;
+                        break;
+                    }
+                }
+                //Push to schedule array
+                if ($line_involved){
+                    array_push($schedule, $this->matchLineFormat($station_list, $trip, $line, $direction));
+                }
+            }
+        }
+
+        //Order Trips by pivot_time, pivot_shift
+        usort($schedule, function ($a, $b){
+            $a_time = ($a['pivot_time'] ?? 0) + ($a['pivot_shift'] ?? 0);
+            $b_time = ($b['pivot_time'] ?? 0) + ($b['pivot_shift'] ?? 0);
+            if ($a_time > $b_time) return +1;
+            if ($a_time < $b_time) return -1;
+            return 0;
+        });
+
+        //Prepare Additional Data for Each Trip
+        $operator = [];
+        $train_type = [];
+        $train_name = [];
+        foreach ($schedule as $i => $item){
+            //operator
+            $operator_id = $item['operator_id'] ?? null;
+            if ($operator_id){
+                if (!isset($operator[$operator_id])){
+                    $operator[$operator_id] = Operator::where('id', $operator_id)
+                    ->selectRaw('name_chi, name_eng, color')->first();
+                }
+                $schedule[$i]['operator'] = $operator[$operator_id];
+            }else{
+                $schedule[$i]['operator'] = null;
+            }
+            //train_type
+            $train_type_id = $item['train_type_id'] ?? null;
+            if ($train_type_id){
+                if (!isset($train_type[$train_type_id])){
+                    $train_type[$train_type_id] = TrainType::where('id', $train_type_id)
+                    ->selectRaw('name_chi, name_eng, color')->first();
+                }
+                $schedule[$i]['train_type'] = $train_type[$train_type_id];
+            }else{
+                $schedule[$i]['train_type'] = null;
+            }
+            //train_name
+            $train_name_id = $item['train_name_id'] ?? null;
+            if ($train_name_id){
+                if (!isset($train_name[$train_name_id])){
+                    $train_name[$train_name_id] = TrainName::where('id', $train_name_id)
+                    ->selectRaw('name_chi, name_eng, color')->first();
+                }
+                $schedule[$i]['train_name'] = $train_name[$train_name_id];
+            }else{
+                $schedule[$i]['train_name'] = null;
+            }
+        }
+
+        //Return Data
+        return [
+            'stations' => $station_list,
+            'schedule' => $schedule,
+        ];
+    }
+
+    public function matchLineFormat($station_list, $trip, $line, $direction){
+        $is_upbound = ($direction == 'up');
+
+        //Remove unwanted attributes
+        unset($trip['wk'], $trip['ph']);
+        unset($trip['begin_index'], $trip['terminate_index']);
+        unset($trip['crossings']);
+
+        //Duplicate schedule
+        $schedule_new = array_fill(0, count($station_list), null);
+        foreach ($trip['schedule'] as $i => $trip_item){
+            $trip_item_prev = $trip['schedule'][$i - 1] ?? null;
+            $station_id = $trip_item['station_id'];
+            $create_new_item = false;
+            $new_item = [
+                'is_express_track' => null, 'time1' => null, 'time2' => null, 'is_pass' => null, 'track' => null,
+            ];
+            //time1 (arrive)
+            if ($trip_item['time1'] && $trip_item_prev){
+                if ($trip_item_prev['line_id'] == $line->id && $trip_item_prev['is_upbound'] == $is_upbound){
+                    $index = Line::getIndexOfStation($station_list, $station_id, true);
+                    if ($index !== null){
+                        $new_item['is_express_track'] = $trip_item_prev['is_express_track'];
+                        $new_item['time1'] = $trip_item['time1'];
+                        $new_item['track'] = $trip_item['track'];
+                        $new_item['is_pass'] = $trip_item['is_pass'];
+                        $create_new_item = true;
+                    }
+                }
+            }
+            //time2 (depart)
+            if ($trip_item['time2']){
+                if ($trip_item['line_id'] == $line->id && $trip_item['is_upbound'] == $is_upbound){
+                    $index = Line::getIndexOfStation($station_list, $station_id, false);
+                    if ($index !== null){
+                        $new_item['is_express_track'] = $trip_item['is_express_track'];
+                        $new_item['time2'] = $trip_item['time2'];
+                        $new_item['track'] = $trip_item['track'];
+                        $new_item['is_pass'] = $trip_item['is_pass'];
+                        $create_new_item = true;
+                    }
+                }
+            }
+            //Add to $schedule_new
+            if ($create_new_item){
+                $schedule_new[$i] = $new_item;
+            }
+        }
+
+        //Replace schedule to the converted one (schedule_line)
+        $trip['schedule_line'] = $schedule_new;
+        unset($trip['schedule']);
+        return $trip;
     }
 
     /**

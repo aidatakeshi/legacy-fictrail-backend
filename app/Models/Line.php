@@ -148,5 +148,25 @@ class Line extends Model{
      * Custom Methods
      */
 
+    //Get station list of line
+    public function getStationList($is_upbound = false){
+        $query = Line_Station::where('line_id', $this->id)->where('isDeleted', false)
+        ->selectRaw('station_id, distance_km, mileage_km, show_arrival, no_tracks');
+        if (!$is_upbound){
+            return $query->orderBy('sort', 'asc')->get();
+        }else{
+            return $query->orderBy('sort', 'desc')->get();
+        }
+    }
+
+    //Get index of station in line (use getStationList() to get $station_list)
+    public static function getIndexOfStation($station_list, $station_id, $is_arrival = false){
+        foreach ($station_list as $i => $item){
+            $last = count($station_list) - 1;
+            if ($i == 0 && $is_arrival) continue;
+            if ($i == $last && !$is_arrival) continue;
+            if ($item->station_id == $station_id) return $i;
+        }
+    }
 
 }
