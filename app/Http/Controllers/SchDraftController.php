@@ -123,7 +123,7 @@ class SchDraftController extends Controller{
                 if ($operator_id){
                     if (!isset($operator[$operator_id])){
                         $operator[$operator_id] = Operator::where('id', $operator_id)
-                        ->selectRaw('name_chi, name_eng, color')->first();
+                        ->selectRaw('name_chi, name_eng, color, color_text')->first();
                     }
                     $data[$dt][$i]['operator'] = $operator[$operator_id];
                 }else{
@@ -134,7 +134,7 @@ class SchDraftController extends Controller{
                 if ($train_type_id){
                     if (!isset($train_type[$train_type_id])){
                         $train_type[$train_type_id] = TrainType::where('id', $train_type_id)
-                        ->selectRaw('name_chi, name_eng, color')->first();
+                        ->selectRaw('name_chi, name_eng, color, color_text')->first();
                     }
                     $data[$dt][$i]['train_type'] = $train_type[$train_type_id];
                 }else{
@@ -145,7 +145,7 @@ class SchDraftController extends Controller{
                 if ($train_name_id){
                     if (!isset($train_name[$train_name_id])){
                         $train_name[$train_name_id] = TrainName::where('id', $train_name_id)
-                        ->selectRaw('name_chi, name_eng, color')->first();
+                        ->selectRaw('name_chi, name_eng, color, color_text')->first();
                     }
                     $data[$dt][$i]['train_name'] = $train_name[$train_name_id];
                 }else{
@@ -191,10 +191,12 @@ class SchDraftController extends Controller{
         //Proceed
         if ($direction && $daytype){
             return response()->json([
+                'data_line' => $line,
                 'data' => $this->getLineSchedule_sub($line, $direction, $daytype),
             ]);
         }else if ($direction){
             return response()->json([
+                'data_line' => $line,
                 'data' => [
                     'wk' => $this->getLineSchedule_sub($line, $direction, 'wk'),
                     'ph' => $this->getLineSchedule_sub($line, $direction, 'ph'),
@@ -202,6 +204,7 @@ class SchDraftController extends Controller{
             ]);
         }else{
             return response()->json([
+                'data_line' => $line,
                 'data' => [
                     'up' => [
                         'wk' => $this->getLineSchedule_sub($line, 'up', 'wk'),
@@ -274,7 +277,7 @@ class SchDraftController extends Controller{
             if ($operator_id){
                 if (!isset($operator[$operator_id])){
                     $operator[$operator_id] = Operator::where('id', $operator_id)
-                    ->selectRaw('name_chi, name_eng, color')->first();
+                    ->selectRaw('name_chi, name_eng, color, color_text')->first();
                 }
                 $schedule[$i]['operator'] = $operator[$operator_id];
             }else{
@@ -285,7 +288,7 @@ class SchDraftController extends Controller{
             if ($train_type_id){
                 if (!isset($train_type[$train_type_id])){
                     $train_type[$train_type_id] = TrainType::where('id', $train_type_id)
-                    ->selectRaw('name_chi, name_eng, color')->first();
+                    ->selectRaw('name_chi, name_eng, color, color_text')->first();
                 }
                 $schedule[$i]['train_type'] = $train_type[$train_type_id];
             }else{
@@ -296,7 +299,7 @@ class SchDraftController extends Controller{
             if ($train_name_id){
                 if (!isset($train_name[$train_name_id])){
                     $train_name[$train_name_id] = TrainName::where('id', $train_name_id)
-                    ->selectRaw('name_chi, name_eng, color')->first();
+                    ->selectRaw('name_chi, name_eng, color, color_text')->first();
                 }
                 $schedule[$i]['train_name'] = $train_name[$train_name_id];
             }else{
@@ -316,8 +319,18 @@ class SchDraftController extends Controller{
 
         //Remove unwanted attributes
         unset($trip['wk'], $trip['ph']);
-        unset($trip['begin_index'], $trip['terminate_index']);
         unset($trip['crossings']);
+
+        //Determine starting / ending station
+        $last = count($trip['schedule']) - 1;
+        $trip['station_begin_id'] = $trip['schedule'][0]['station_id'];
+        $trip['station_terminate_id'] = $trip['schedule'][$last]['station_id'];
+        $station = Station::where('id', $trip['station_begin_id'])->first();
+        $trip['station_begin_name_chi'] = $station ? $station->name_chi : null;
+        $trip['station_begin_name_eng'] = $station ? $station->name_eng : null;
+        $station = Station::where('id', $trip['station_terminate_id'])->first();
+        $trip['station_terminate_name_chi'] = $station ? $station->name_chi : null;
+        $trip['station_terminate_name_eng'] = $station ? $station->name_eng : null;
 
         //Duplicate schedule
         $schedule_new = array_fill(0, count($station_list), null);
@@ -356,7 +369,24 @@ class SchDraftController extends Controller{
             }
             //Add to $schedule_new
             if ($create_new_item){
-                $schedule_new[$i] = $new_item;
+                $schedule_new[$index] = $new_item;
+            }
+        }
+
+        //Determine begin_index, terminate_index (new meaning)
+        $trip['begin_index'] = null;
+        $trip['terminate_index'] = null;
+        $last = count($schedule_new) - 1;
+        for ($i = 0; $i <= $last; $i++){
+            if ($schedule_new[$i]){
+                $trip['begin_index'] = $i;
+                break;
+            }
+        }
+        for ($i = $last; $i >= 0; $i--){
+            if ($schedule_new[$i]){
+                $trip['terminate_index'] = $i;
+                break;
             }
         }
 

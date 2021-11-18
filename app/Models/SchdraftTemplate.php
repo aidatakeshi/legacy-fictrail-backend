@@ -58,7 +58,7 @@ class SchdraftTemplate extends Model{
         'pivot_time_adj' => 'integer',
         'train_type_id' => 'exists:train_types,id',
         'train_type_mod' => 'json',
-        'train_name_id' => 'exists:train_names,id',
+        'train_name_id' => 'nullable|exists:train_names,id',
         'train_name_mod' => 'json',
         'operator_id' => 'exists:operators,id',
         'operator_id_mod' => 'json',
@@ -82,7 +82,7 @@ class SchdraftTemplate extends Model{
         'pivot_time_adj' => 'integer',
         'train_type_id' => 'required|exists:train_types,id',
         'train_type_mod' => 'json',
-        'train_name_id' => 'required|exists:train_names,id',
+        'train_name_id' => 'nullable|exists:train_names,id',
         'train_name_mod' => 'json',
         'operator_id' => 'required|exists:operators,id',
         'operator_id_mod' => 'json',
@@ -134,6 +134,19 @@ class SchdraftTemplate extends Model{
             $data = (object)[
                 "id" => $data->id,
                 "title" => $data->title,
+            ];
+        }
+        //"breadcrumb"
+        if ($request->input('breadcrumb')){
+            $group = $this->group;
+            $category = $group ? $group->category : null;
+            $data = (object)[
+                "id" => $data->id,
+                "title" => $data->title,
+                "group_id" => $data->group_id,
+                "group_title" => $group ? $group->title : null,
+                "category_id" => $group->category_id,
+                "category_title" => $category ? $category->title : null,
             ];
         }
         //"group"
