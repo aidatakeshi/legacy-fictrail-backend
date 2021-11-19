@@ -320,6 +320,7 @@ class SchDraftController extends Controller{
         //Remove unwanted attributes
         unset($trip['wk'], $trip['ph']);
         unset($trip['crossings']);
+        unset($trip['begin_index'], $trip['terminate_index']);
 
         //Determine starting / ending station
         $last = count($trip['schedule']) - 1;
@@ -334,6 +335,7 @@ class SchDraftController extends Controller{
 
         //Duplicate schedule
         $schedule_new = array_fill(0, count($station_list), null);
+        $last = count($trip['schedule']) - 1;
         foreach ($trip['schedule'] as $i => $trip_item){
             $trip_item_prev = $trip['schedule'][$i - 1] ?? null;
             $station_id = $trip_item['station_id'];
@@ -342,51 +344,73 @@ class SchDraftController extends Controller{
                 'is_express_track' => null, 'time1' => null, 'time2' => null, 'is_pass' => null, 'track' => null,
             ];
             //time1 (arrive)
-            if ($trip_item['time1'] && $trip_item_prev){
+            if ($trip_item['time1'] !== null && $trip_item_prev){
                 if ($trip_item_prev['line_id'] == $line->id && $trip_item_prev['is_upbound'] == $is_upbound){
                     $index = Line::getIndexOfStation($station_list, $station_id, true);
                     if ($index !== null){
                         $new_item['is_express_track'] = $trip_item_prev['is_express_track'];
                         $new_item['time1'] = $trip_item['time1'];
-                        $new_item['track'] = $trip_item['track'];
-                        $new_item['is_pass'] = $trip_item['is_pass'];
                         $create_new_item = true;
                     }
                 }
             }
             //time2 (depart)
-            if ($trip_item['time2']){
+            if ($trip_item['time2'] !== null){
                 if ($trip_item['line_id'] == $line->id && $trip_item['is_upbound'] == $is_upbound){
                     $index = Line::getIndexOfStation($station_list, $station_id, false);
                     if ($index !== null){
                         $new_item['is_express_track'] = $trip_item['is_express_track'];
                         $new_item['time2'] = $trip_item['time2'];
-                        $new_item['track'] = $trip_item['track'];
-                        $new_item['is_pass'] = $trip_item['is_pass'];
+                        $create_new_item = true;
+                    }
+                }
+            }
+            //Special case: time2 not null / time1 null / changing line ID (e.g. thru-line train passing station)
+            if ($trip_item['time2'] !== null && $trip_item['time1'] === null && $trip_item_prev){
+                if ($trip_item_prev['line_id'] != $trip_item['line_id']){
+                    $index = Line::getIndexOfStation($station_list, $station_id, true);
+                    if ($index !== null){
+                        $new_item['is_express_track'] = $trip_item_prev['is_express_track'];
+                        $new_item['time1'] = $trip_item['time2'];
                         $create_new_item = true;
                     }
                 }
             }
             //Add to $schedule_new
             if ($create_new_item){
+                $new_item['track'] = $trip_item['track'];
+                $new_item['is_pass'] = $trip_item['is_pass'];
+                $on_line = $line->id == ($trip_item ? $trip_item['line_id'] : null);
+                $on_line_prev = $line->id == ($trip_item_prev ? $trip_item_prev['line_id'] : null);
+                //Flags: is_trip_begin, is_trip_terminate, is_thru_in, is_thru_out (returned only when true)
+                if ($i == 0){
+                    $new_item['is_trip_begin'] = true;
+                }else if ($i == $last){
+                    $new_item['is_trip_terminate'] = true;
+                }else if ($on_line && !$on_line_prev){
+                    $new_item['is_thru_in'] = true;
+                }else if (!$on_line && $on_line_prev){
+                    $new_item['is_thru_out'] = true;
+                }
                 $schedule_new[$index] = $new_item;
             }
         }
 
-        //Determine begin_index, terminate_index (new meaning)
-        $trip['begin_index'] = null;
-        $trip['terminate_index'] = null;
-        $last = count($schedule_new) - 1;
-        for ($i = 0; $i <= $last; $i++){
-            if ($schedule_new[$i]){
-                $trip['begin_index'] = $i;
-                break;
-            }
-        }
-        for ($i = $last; $i >= 0; $i--){
-            if ($schedule_new[$i]){
-                $trip['terminate_index'] = $i;
-                break;
+        //Fill null items in line
+        $in_line = false;
+        foreach ($schedule_new as $i => $item){
+            if ($item !== null){
+                if (isset($item['is_trip_begin']) || isset($item['is_thru_in'])){
+                    $in_line = true;
+                }else if (isset($item['is_trip_terminate']) || isset($item['is_thru_out'])){
+                    $in_line = false;
+                }
+                $is_express_track = $item['is_express_track'];
+            }else if ($in_line){
+                $schedule_new[$i] = [
+                    'is_express_track' => $is_express_track,
+                    'time1' => null, 'time2' => null, 'is_pass' => true, 'track' => null,
+                ];
             }
         }
 
