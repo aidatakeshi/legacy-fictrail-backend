@@ -345,6 +345,7 @@ class SchDraftController extends Controller{
             ];
             //time1 (arrive)
             if ($trip_item['time1'] !== null && $trip_item_prev){
+                //Same Line && Direction
                 if ($trip_item_prev['line_id'] == $line->id && $trip_item_prev['is_upbound'] == $is_upbound){
                     $index = Line::getIndexOfStation($station_list, $station_id, true);
                     if ($index !== null){
@@ -356,23 +357,25 @@ class SchDraftController extends Controller{
             }
             //time2 (depart)
             if ($trip_item['time2'] !== null){
+                //Same Line & Direction
                 if ($trip_item['line_id'] == $line->id && $trip_item['is_upbound'] == $is_upbound){
                     $index = Line::getIndexOfStation($station_list, $station_id, false);
                     if ($index !== null){
+                        $new_item['index'] = $index;
                         $new_item['is_express_track'] = $trip_item['is_express_track'];
                         $new_item['time2'] = $trip_item['time2'];
                         $create_new_item = true;
                     }
                 }
-            }
-            //Special case: time2 not null / time1 null / changing line ID (e.g. thru-line train passing station)
-            if ($trip_item['time2'] !== null && $trip_item['time1'] === null && $trip_item_prev){
-                if ($trip_item_prev['line_id'] != $trip_item['line_id']){
-                    $index = Line::getIndexOfStation($station_list, $station_id, true);
-                    if ($index !== null){
-                        $new_item['is_express_track'] = $trip_item_prev['is_express_track'];
-                        $new_item['time1'] = $trip_item['time2'];
-                        $create_new_item = true;
+                //Special Case: Changing Line
+                else if ($trip_item_prev){
+                    if ($trip_item_prev['line_id'] != $trip_item['line_id']){
+                        $index = Line::getIndexOfStation($station_list, $station_id, true);
+                        if ($index !== null){
+                            $new_item['is_express_track'] = $trip_item_prev['is_express_track'];
+                            $new_item['time1'] = $trip_item['time2'];
+                            $create_new_item = true;
+                        }
                     }
                 }
             }
