@@ -342,6 +342,7 @@ class SchDraftController extends Controller{
             $create_new_item = false;
             $new_item = [
                 'is_express_track' => null, 'time1' => null, 'time2' => null, 'is_pass' => null, 'track' => null,
+                'mileage_km' => null, 'no_tracks' => null,
             ];
             //time1 (arrive)
             if ($trip_item['time1'] !== null && $trip_item_prev){
@@ -361,7 +362,6 @@ class SchDraftController extends Controller{
                 if ($trip_item['line_id'] == $line->id && $trip_item['is_upbound'] == $is_upbound){
                     $index = Line::getIndexOfStation($station_list, $station_id, false);
                     if ($index !== null){
-                        $new_item['index'] = $index;
                         $new_item['is_express_track'] = $trip_item['is_express_track'];
                         $new_item['time2'] = $trip_item['time2'];
                         $create_new_item = true;
@@ -383,6 +383,20 @@ class SchDraftController extends Controller{
             if ($create_new_item){
                 $new_item['track'] = $trip_item['track'];
                 $new_item['is_pass'] = $trip_item['is_pass'];
+                $new_item['mileage_km'] = $station_list[$index]['mileage_km'];
+                if ($direction == 'dn'){
+                    if ($index < count($station_list) - 1){
+                        $new_item['no_tracks'] = $station_list[$index + 1]['no_tracks'];
+                    }else{
+                        $new_item['no_tracks'] = null;
+                    }
+                }else{
+                    if ($index > 0){
+                        $new_item['no_tracks'] = $station_list[$index]['no_tracks'];
+                    }else{
+                        $new_item['no_tracks'] = null;
+                    }
+                }
                 $on_line = $line->id == ($trip_item ? $trip_item['line_id'] : null);
                 $on_line_prev = $line->id == ($trip_item_prev ? $trip_item_prev['line_id'] : null);
                 //Flags: is_trip_begin, is_trip_terminate, is_thru_in, is_thru_out (returned only when true)
@@ -401,7 +415,9 @@ class SchDraftController extends Controller{
 
         //Fill null items in line
         $in_line = false;
+        $mileage_ref_1 = 0;
         foreach ($schedule_new as $i => $item){
+            //Not Null
             if ($item !== null){
                 if (isset($item['is_trip_begin']) || isset($item['is_thru_in'])){
                     $in_line = true;
@@ -409,10 +425,29 @@ class SchDraftController extends Controller{
                     $in_line = false;
                 }
                 $is_express_track = $item['is_express_track'];
-            }else if ($in_line){
+                $mileage_ref_1 = $item['mileage_km'];
+                $time_ref_1 = $item['time2'];
+            }
+            //Null & Between Non-Null Items
+            else if ($in_line){
+                //Find Next Non-Null Item
+                $mileage_ref_2 = 0;
+                $time_ref_2 = 0;
+                for ($j = $i + 1; $j < count($schedule_new); $j++){
+                    if ($schedule_new[$j]){
+                        $mileage_ref_2 = $schedule_new[$j]['mileage_km'];
+                        $time_ref_2 = $schedule_new[$j]['time1'];
+                        break;
+                    }
+                }
+                //Do Intepolation
+                $mileage_here = $station_list[$i]['mileage_km'];
                 $schedule_new[$i] = [
                     'is_express_track' => $is_express_track,
                     'time1' => null, 'time2' => null, 'is_pass' => true, 'track' => null,
+                    'time_intepolated' => $time_ref_1 + ($time_ref_2 - $time_ref_1)
+                    / ($mileage_ref_2 - $mileage_ref_1) * ($mileage_here - $mileage_ref_1),
+                    'mileage_km' => $mileage_here,
                 ];
             }
         }

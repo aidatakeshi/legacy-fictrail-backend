@@ -509,19 +509,19 @@ class SchdraftTemplate extends Model{
             $is_cross = ($template_item->is_cross ?? false);
             //Prepare Schedule Item
             $item = (object)[];
-            //Line, Station, etc
+            //Line, Station, is_express_track, etc
             if (!$is_cross){
                 $item->line_id = ($i < $terminate_index) ? ($template_item->line_id ?? null) : null;
                 $item->is_upbound = ($i < $terminate_index) ? ($template_item->is_upbound ?? null) : null;
+                $item->is_express_track = ($i < $terminate_index) ? ($template_item->is_express_track ?? false) : null;
             }
             $item->station_id = $template_item->station_id ?? null;
             if ($is_cross){
                 $item->cross_id = $template_item->cross_id ?? null;
             }
-            //time1, time2, is_pass, track, is_express_track
+            //time1, time2, is_pass, track
             if (!$is_cross){
                 $item->track = $template_item->track ?? null;
-                $item->is_express_track = $template_item->is_express_track ?? false;
                 $item->is_pass = $template_item->is_pass ?? false;
             }
             $time1_in_template = $template_item->time1 ?? null;
@@ -556,9 +556,6 @@ class SchdraftTemplate extends Model{
             ? ($time1_in_template + $pivot_time_diff) : null;
             $item->time2 = ($time2_in_template !== null && $i < $terminate_index)
             ? ($time2_in_template + $pivot_time_diff) : null;
-
-            //mileage_km
-
 
             //Push Schedule Item
             if (!$is_cross){
