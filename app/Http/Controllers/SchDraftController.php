@@ -72,6 +72,8 @@ class SchDraftController extends Controller{
                 $station2_id = $st_item['station_id'] ?? null;
                 $is_upbound = $st_item_prev['is_upbound'] ?? false;
                 $is_express_track = $st_item_prev['is_express_track'] ?? false;
+                //Get Line
+                $line = Line::where('id', $line_id)->first();
                 //Get Line-Station Items
                 $item['line_stations'] = Line_Station::getLineStationItems($line_id, $station1_id, $station2_id, $is_upbound);
                 foreach ($item['line_stations'] as $ls_item){
@@ -87,7 +89,7 @@ class SchDraftController extends Controller{
                 $item['distance_km'] = $distance_km;
                 $item['mileage_km'] = $mileage_km;
                 //Get Travel Time
-                $item['travel_time'] = $vp_item->getTravelTime($item['line_stations'], $is_upbound, $is_express_track);
+                $item['travel_time'] = $vp_item->getTravelTime($line, $item['line_stations'], $is_upbound, $is_express_track);
             }
             
             //Add to returned Data
@@ -373,7 +375,7 @@ class SchDraftController extends Controller{
                         $index = Line::getIndexOfStation($station_list, $station_id, true);
                         if ($index !== null){
                             $new_item['is_express_track'] = $trip_item_prev['is_express_track'];
-                            $new_item['time1'] = $trip_item['time2'];
+                            $new_item['time1'] = $trip_item['time1'] ?? $trip_item['time2'];
                             $create_new_item = true;
                         }
                     }
@@ -385,13 +387,13 @@ class SchDraftController extends Controller{
                 $new_item['is_pass'] = $trip_item['is_pass'];
                 $new_item['mileage_km'] = $station_list[$index]['mileage_km'];
                 if ($direction == 'dn'){
-                    if ($index < count($station_list) - 1){
+                    if ($station_list[$index + 1] ?? null){
                         $new_item['no_tracks'] = $station_list[$index + 1]['no_tracks'];
                     }else{
                         $new_item['no_tracks'] = null;
                     }
                 }else{
-                    if ($index > 0){
+                    if ($station_list[$index] ?? null){
                         $new_item['no_tracks'] = $station_list[$index]['no_tracks'];
                     }else{
                         $new_item['no_tracks'] = null;
@@ -416,6 +418,7 @@ class SchDraftController extends Controller{
         //Fill null items in line
         $in_line = false;
         $mileage_ref_1 = 0;
+        $no_tracks = null;
         foreach ($schedule_new as $i => $item){
             //Not Null
             if ($item !== null){
@@ -426,7 +429,8 @@ class SchDraftController extends Controller{
                 }
                 $is_express_track = $item['is_express_track'];
                 $mileage_ref_1 = $item['mileage_km'];
-                $time_ref_1 = $item['time2'];
+                $time_ref_1 = $item['time2'] ?? $item['time1'];
+                $no_tracks = $item['no_tracks'];
             }
             //Null & Between Non-Null Items
             else if ($in_line){
@@ -436,7 +440,7 @@ class SchDraftController extends Controller{
                 for ($j = $i + 1; $j < count($schedule_new); $j++){
                     if ($schedule_new[$j]){
                         $mileage_ref_2 = $schedule_new[$j]['mileage_km'];
-                        $time_ref_2 = $schedule_new[$j]['time1'];
+                        $time_ref_2 = $schedule_new[$j]['time1'] ?? $schedule_new[$j]['time2'];
                         break;
                     }
                 }
@@ -448,6 +452,7 @@ class SchDraftController extends Controller{
                     'time_intepolated' => $time_ref_1 + ($time_ref_2 - $time_ref_1)
                     / ($mileage_ref_2 - $mileage_ref_1) * ($mileage_here - $mileage_ref_1),
                     'mileage_km' => $mileage_here,
+                    'no_tracks' => $no_tracks,
                 ];
             }
         }

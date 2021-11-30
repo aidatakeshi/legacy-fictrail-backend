@@ -462,6 +462,9 @@ class SchdraftTemplate extends Model{
         //wk, ph
         $data->wk = !$isPH;
         $data->ph = $isPH;
+
+        //is_temp
+        $data->is_temp = $deployment_item->is_temp;
  
         //Determine Begin / Terminate Index (by deployment_item)
         $begin_index = 0;
