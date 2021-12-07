@@ -117,6 +117,17 @@ class SchDraftController extends Controller{
         $train_name = [];
         $station = [];
 
+        //Sort Data
+        foreach ($data as $dt => $data_sub){
+            usort($data[$dt], function($a, $b){
+                $time_a = $a['pivot_time'] + $a['pivot_shift'];
+                $time_b = $b['pivot_time'] + $b['pivot_shift'];
+                if ($time_a > $time_b) return +1;
+                if ($time_a < $time_b) return -1;
+                return 0;
+            });
+        }
+
         //Get Data
         foreach ($data as $dt => $data_sub){
             foreach ($data_sub as $i => $item){
